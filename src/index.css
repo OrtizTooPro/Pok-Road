@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@layer base {
+  html, body {
+    @apply bg-slate-200 text-gray-900 font-mono antialiased selection:bg-red-600 selection:text-white;
+    background-image: 
+      linear-gradient(to right, #d1d5db 1px, transparent 1px),
+      linear-gradient(to bottom, #d1d5db 1px, transparent 1px);
+    background-size: 16px 16px;
+    background-attachment: fixed;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+/* Custom retro scrollbar with smooth mobile touch support */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+@media (min-width: 640px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-left: 2px solid #1f2937;
+}
+::-webkit-scrollbar-thumb {
+  background: #dc2626;
+  border: 2px solid #1f2937;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #991b1b;
+}
+
+/* Touch scroll utilities */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Hide scrollbar utility for clean mobile horizontal sliders */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

@@ -1,0 +1,6 @@
+{
+  "name": "PokéRoad — Camino a la Leyenda",
+  "description": "Simulación interactiva de carrera de Entrenador Pokémon en 5 minutos. Toma decisiones, acumula medallas y conviértete en Leyenda del Salón de la Fama.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
