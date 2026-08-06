@@ -25,11 +25,11 @@ export const CharacterSetup: React.FC = () => {
     setShowNewSetup(true);
   };
 
-  const handleGoToStep4 = () => {
+  const handleGoToStep = (stepNumber: number) => {
     if (!name.trim()) {
       setName('Red');
     }
-    setCurrentStep(4);
+    setCurrentStep(Math.min(4, Math.max(1, stepNumber)));
   };
 
   const handleNextStep = () => {
@@ -45,12 +45,7 @@ export const CharacterSetup: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (currentStep < 4) {
-      handleNextStep();
-      return;
-    }
+  const handleStartGame = () => {
     const finalName = name.trim() || 'Red';
     if (hasSavedGame) {
       setShowStartConfirm(true);
@@ -338,7 +333,7 @@ export const CharacterSetup: React.FC = () => {
               </div>
 
               {/* Step Content Container */}
-              <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 flex flex-col overflow-hidden">
                 <div className="p-4 sm:p-6 overflow-y-auto touch-scroll flex-1 space-y-5 max-h-[60vh] sm:max-h-[68vh] overscroll-contain scroll-smooth pb-8">
                   {/* STEP 1: NAME */}
                   {currentStep === 1 && (
@@ -365,6 +360,12 @@ export const CharacterSetup: React.FC = () => {
                           type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleNextStep();
+                            }
+                          }}
                           placeholder="Ej: RED, ASH, SERENA, SATOSHI..."
                           maxLength={20}
                           autoFocus
@@ -476,6 +477,17 @@ export const CharacterSetup: React.FC = () => {
                             </span>
                           </button>
                         ))}
+                      </div>
+
+                      <div className="pt-2 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => handleGoToStep(4)}
+                          className="w-full sm:w-auto px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded font-black text-xs uppercase border-2 border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center justify-center gap-2 transition-all cursor-pointer"
+                        >
+                          <span>PASO 4: ELEGIR INICIAL</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
                       </div>
                     </motion.div>
                   )}
@@ -657,7 +669,7 @@ export const CharacterSetup: React.FC = () => {
                   {currentStep < 4 ? (
                     <button
                       type="button"
-                      onClick={handleNextStep}
+                      onClick={() => handleGoToStep(currentStep + 1)}
                       className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded font-black text-xs uppercase border-2 border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center gap-1.5 transition-all cursor-pointer ml-auto"
                     >
                       <span>
@@ -669,7 +681,8 @@ export const CharacterSetup: React.FC = () => {
                     </button>
                   ) : (
                     <button
-                      type="submit"
+                      type="button"
+                      onClick={handleStartGame}
                       className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-black text-xs uppercase border-2 border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center gap-1.5 transition-all cursor-pointer ml-auto"
                     >
                       <span>¡COMENZAR CARRERA POKÉROAD!</span>
@@ -677,7 +690,7 @@ export const CharacterSetup: React.FC = () => {
                     </button>
                   )}
                 </div>
-              </form>
+              </div>
             </motion.div>
           </div>
         )}
