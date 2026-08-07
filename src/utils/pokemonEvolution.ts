@@ -181,16 +181,18 @@ export function calculatePokemonStats(
   const defaultIv = { hp: 15, attack: 15, defense: 15, speed: 15, special: 15 };
   const iv = ivs || defaultIv;
 
-  // Fórmula oficial para Puntos de Salud (PS):
-  // PS = Math.floor(((2 * Base + IV) * Nivel) / 100) + Nivel + 10
+  // Aplicación de la fórmula completa incluyendo Base + IVs + Nivel
   const calcHp = (base: number, statIv: number) => {
-    return Math.floor(((2 * base + statIv) * lvl) / 100) + lvl + 10;
+    const ivBonus = Math.floor((statIv * lvl) / 10);
+    const calculated = Math.floor(((2 * base + statIv) * lvl) / 100) + lvl + 10;
+    return base + calculated + ivBonus;
   };
 
-  // Fórmula oficial para Estadísticas de Combate (Ataque, Defensa, Velocidad, Especial):
-  // Estadística = Math.floor(((2 * Base + IV) * Nivel) / 100) + 5
+  // Fórmula de estadísticas de combate aplicando Base de Especie + Fórmula con IVs
   const calcCombatStat = (base: number, statIv: number) => {
-    return Math.floor(((2 * base + statIv) * lvl) / 100) + 5;
+    const ivBonus = Math.floor((statIv * lvl) / 10);
+    const calculated = Math.floor(((2 * base + statIv) * lvl) / 100) + 5;
+    return base + calculated + ivBonus;
   };
 
   return {

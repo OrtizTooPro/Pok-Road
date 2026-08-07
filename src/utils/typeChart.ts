@@ -172,6 +172,37 @@ export function getWeaknessesAndResistances(typeStr: string): {
 }
 
 /**
+ * Returns offensive effectiveness (superEffective, notEffective, noEffect) for a given attacker type
+ */
+export function getOffensiveEffectiveness(typeStr: string): {
+  superEffective: string[];
+  notEffective: string[];
+  noEffect: string[];
+} {
+  const allTypes: string[] = [
+    'Normal', 'Fuego', 'Agua', 'Planta', 'Eléctrico', 'Hielo', 'Lucha', 'Veneno',
+    'Tierra', 'Volador', 'Psíquico', 'Bicho', 'Roca', 'Fantasma', 'Dragón', 'Acero', 'Siniestro', 'Hada'
+  ];
+
+  const superEffective: string[] = [];
+  const notEffective: string[] = [];
+  const noEffect: string[] = [];
+
+  for (const def of allTypes) {
+    const mult = getTypeEffectivenessMultiplier(typeStr, def);
+    if (mult >= 2.0) {
+      superEffective.push(def);
+    } else if (mult === 0) {
+      noEffect.push(def);
+    } else if (mult < 1.0) {
+      notEffective.push(def);
+    }
+  }
+
+  return { superEffective, notEffective, noEffect };
+}
+
+/**
  * Infers opponent element/type from event metadata
  */
 export function inferEventOpponentType(event: GameEvent): string {

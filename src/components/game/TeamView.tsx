@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { findPokemonByName } from '../../data/kantoPokedex';
 import { calculateMaxExpForLevel, calculatePokemonStats, getPokemonMoves, EVOLUTION_RULES, getPokemonPotentialJudgement } from '../../utils/pokemonEvolution';
-import { getWeaknessesAndResistances } from '../../utils/typeChart';
+import { getWeaknessesAndResistances, getOffensiveEffectiveness } from '../../utils/typeChart';
 import { PokemonMember } from '../../types';
 
 type DragItemSource = 
@@ -732,29 +732,52 @@ export const TeamView: React.FC = () => {
               {/* Type Chart Weaknesses & Resistances Breakdown */}
               {(() => {
                 const matchInfo = getWeaknessesAndResistances(selectedPokemon.pokemon.type);
+                const offInfo = getOffensiveEffectiveness(selectedPokemon.pokemon.type);
                 return (
                   <div className="bg-slate-50 border-2 border-gray-800 rounded-md p-3 space-y-2 text-xs font-bold">
                     <h4 className="text-xs font-black uppercase text-gray-900 flex items-center gap-1.5">
                       <Shield className="w-4 h-4 text-gray-700" />
-                      TABLA DE EFECTIVIDAD Y TIPOS:
+                      TABLA DE EFECTIVIDAD Y TIPOS ({selectedPokemon.pokemon.type}):
                     </h4>
                     
                     <div className="space-y-1.5 text-[11px]">
+                      <div className="flex items-start gap-1.5 bg-emerald-50 p-2 rounded border border-emerald-200">
+                        <Sword className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-extrabold text-emerald-900 block">VENTAJA OFENSIVA (Inflige 2x):</span>
+                          <span className="text-emerald-800 font-medium">
+                            {offInfo.superEffective.join(', ') || 'Ninguna'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {offInfo.noEffect.length > 0 && (
+                        <div className="flex items-start gap-1.5 bg-amber-50 p-2 rounded border border-amber-300">
+                          <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="font-extrabold text-amber-950 block">DEBILIDAD OFENSIVA (No afecta, 0x):</span>
+                            <span className="text-amber-900 font-medium">
+                              {offInfo.noEffect.join(', ')}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="flex items-start gap-1.5 bg-red-50 p-2 rounded border border-red-200">
                         <ShieldAlert className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                         <div>
-                          <span className="font-extrabold text-red-900 block">DEBILIDADES (Recibe daño Súper Efectivo):</span>
+                          <span className="font-extrabold text-red-900 block">DEBILIDAD DEFENSIVA (Recibe 2x):</span>
                           <span className="text-red-800 font-medium">
                             {matchInfo.weaknesses.join(', ') || 'Ninguna'}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-1.5 bg-emerald-50 p-2 rounded border border-emerald-200">
-                        <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-1.5 bg-blue-50 p-2 rounded border border-blue-200">
+                        <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                         <div>
-                          <span className="font-extrabold text-emerald-900 block">FORTALEZAS / RESISTENCIAS (Reduce daño recibido):</span>
-                          <span className="text-emerald-800 font-medium">
+                          <span className="font-extrabold text-blue-900 block">FORTALEZAS / RESISTENCIAS (Reduce daño recibido):</span>
+                          <span className="text-blue-800 font-medium">
                             {matchInfo.resistances.join(', ') || 'Ninguna'}
                           </span>
                         </div>
@@ -764,7 +787,7 @@ export const TeamView: React.FC = () => {
                         <div className="flex items-start gap-1.5 bg-purple-50 p-2 rounded border border-purple-200">
                           <Zap className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
                           <div>
-                            <span className="font-extrabold text-purple-900 block">INMUNIDADES (Sin daño):</span>
+                            <span className="font-extrabold text-purple-900 block">INMUNIDADES DEFENSIVAS (Sin daño):</span>
                             <span className="text-purple-800 font-medium">
                               {matchInfo.immunities.join(', ')}
                             </span>
@@ -795,7 +818,7 @@ export const TeamView: React.FC = () => {
 
               {/* Stats Breakdown */}
               <div className="space-y-1.5">
-                <h4 className="text-xs font-black uppercase text-gray-700">ESTADÍSTICAS Y EVALUADOR DE POTENCIAL (IVs)</h4>
+                <h4 className="text-xs font-black uppercase text-gray-700">ESTADÍSTICAS Y EVALUACIÓN DEL JUEZ DE GENES</h4>
                 {(() => {
                   const speciesName = selectedPokemon.pokemon.species || selectedPokemon.pokemon.name;
                   const kantoMatch = findPokemonByName(speciesName);
@@ -828,7 +851,7 @@ export const TeamView: React.FC = () => {
                           </div>
                           <p className="text-[10px] text-gray-300 font-medium leading-relaxed">
                             • <strong>Base Especie (Pokédex)</strong>: Atributos innatos oficiales (PS {b.hp}, Atk {b.attack}, Def {b.defense}, Vel {b.speed}, Esp {b.special}).<br/>
-                            • <strong>Combate Nvl. {selectedPokemon.pokemon.level || 5}</strong>: Valores calculados con la fórmula oficial Gen 1 según nivel e IVs.
+                            • <strong>Combate Nvl. {selectedPokemon.pokemon.level || 5}</strong>: Valores calculados con la fórmula oficial Gen 1 según nivel y genética.
                           </p>
                         </div>
                       )}

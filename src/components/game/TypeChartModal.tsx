@@ -205,7 +205,7 @@ export const TypeChartModal: React.FC<TypeChartModalProps> = ({ isOpen, onClose 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-bold text-gray-800 text-[11px]">
                   <div className="bg-white p-2 border border-amber-300 rounded">
                     <span className="text-emerald-700 font-black block mb-1">
-                      SÚPER EFICAZ (2x) CONTRA:
+                      VENTAJA OFENSIVA (2x) CONTRA:
                     </span>
                     <div className="flex flex-wrap gap-1">
                       {KANTO_TYPES.filter(t => getTypeEffectivenessMultiplier(selectedAttacker, t) >= 2.0).map(t => (
@@ -221,14 +221,17 @@ export const TypeChartModal: React.FC<TypeChartModalProps> = ({ isOpen, onClose 
 
                   <div className="bg-white p-2 border border-amber-300 rounded">
                     <span className="text-amber-800 font-black block mb-1">
-                      POCO EFICAZ / INMUNE (0.5x / 0x) CONTRA:
+                      DEBILIDAD OFENSIVA / RESISTIDO CONTRA:
                     </span>
                     <div className="flex flex-wrap gap-1">
-                      {KANTO_TYPES.filter(t => getTypeEffectivenessMultiplier(selectedAttacker, t) < 1.0).map(t => (
-                        <span key={t} className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-950 border border-amber-500 uppercase text-[10px]">
-                          {t} ({getTypeEffectivenessMultiplier(selectedAttacker, t)}x)
-                        </span>
-                      ))}
+                      {KANTO_TYPES.filter(t => getTypeEffectivenessMultiplier(selectedAttacker, t) < 1.0).map(t => {
+                        const mult = getTypeEffectivenessMultiplier(selectedAttacker, t);
+                        return (
+                          <span key={t} className={`px-1.5 py-0.5 rounded border uppercase text-[10px] ${mult === 0 ? 'bg-red-100 text-red-950 border-red-500 font-black' : 'bg-amber-100 text-amber-950 border-amber-500'}`}>
+                            {t} ({mult === 0 ? '0x No Afecta' : `${mult}x`})
+                          </span>
+                        );
+                      })}
                       {KANTO_TYPES.filter(t => getTypeEffectivenessMultiplier(selectedAttacker, t) < 1.0).length === 0 && (
                         <span className="text-gray-500 italic">Ninguno</span>
                       )}
@@ -247,6 +250,7 @@ export const TypeChartModal: React.FC<TypeChartModalProps> = ({ isOpen, onClose 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {KANTO_TYPES.map(type => {
                   const superEffectiveTypes = KANTO_TYPES.filter(t => getTypeEffectivenessMultiplier(type, t) >= 2.0);
+                  const noEffectTypes = KANTO_TYPES.filter(t => getTypeEffectivenessMultiplier(type, t) === 0);
                   const weakTypes = KANTO_TYPES.filter(t => getTypeEffectivenessMultiplier(t, type) >= 2.0);
                   const style = TYPE_COLORS[type] || { bg: 'bg-gray-100', text: 'text-gray-900', border: 'border-gray-600', badge: 'bg-gray-600 text-white' };
 
@@ -272,6 +276,15 @@ export const TypeChartModal: React.FC<TypeChartModalProps> = ({ isOpen, onClose 
                             {superEffectiveTypes.join(', ') || 'Ninguno'}
                           </div>
                         </div>
+
+                        {noEffectTypes.length > 0 && (
+                          <div>
+                            <strong className="text-amber-900 font-black">DEBILIDAD OFENSIVA (0x):</strong>
+                            <div className="text-red-900 font-extrabold truncate">
+                              {noEffectTypes.join(', ')}
+                            </div>
+                          </div>
+                        )}
 
                         <div>
                           <strong className="text-red-700 font-black">DEBILIDAD DEFENSIVA (Recibe 2x):</strong>
