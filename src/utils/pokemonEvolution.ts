@@ -174,31 +174,31 @@ export function calculatePokemonStats(
   ivs?: PokemonIVs
 ): PokemonStats {
   const lvl = Math.max(1, level);
-  const iv = ivs || { hp: 16, attack: 16, defense: 16, speed: 16, special: 16 };
-
   const targetSpecies = species ? species.trim() : undefined;
-  if (targetSpecies) {
-    const kantoMatch = findPokemonByName(targetSpecies);
-    if (kantoMatch && kantoMatch.baseStats) {
-      const b = kantoMatch.baseStats;
-      return {
-        hp: Math.floor(((b.hp * 2 + iv.hp) * lvl) / 100 + lvl + 10),
-        attack: Math.floor(((b.attack * 2 + iv.attack) * lvl) / 100 + 5),
-        defense: Math.floor(((b.defense * 2 + iv.defense) * lvl) / 100 + 5),
-        speed: Math.floor(((b.speed * 2 + iv.speed) * lvl) / 100 + 5),
-        special: Math.floor(((b.special * 2 + iv.special) * lvl) / 100 + 5),
-      };
-    }
-  }
+  const kantoMatch = targetSpecies ? findPokemonByName(targetSpecies) : undefined;
+  const b = kantoMatch?.baseStats || { hp: 35, attack: 35, defense: 35, speed: 35, special: 35 };
 
-  // Fallback default for unknown species: Base 35 across all stats (Rattata-tier baseline)
-  const defaultB = { hp: 35, attack: 35, defense: 35, speed: 35, special: 35 };
+  const defaultIv = { hp: 15, attack: 15, defense: 15, speed: 15, special: 15 };
+  const iv = ivs || defaultIv;
+
+  // Fórmula oficial para Puntos de Salud (PS):
+  // PS = Math.floor(((2 * Base + IV) * Nivel) / 100) + Nivel + 10
+  const calcHp = (base: number, statIv: number) => {
+    return Math.floor(((2 * base + statIv) * lvl) / 100) + lvl + 10;
+  };
+
+  // Fórmula oficial para Estadísticas de Combate (Ataque, Defensa, Velocidad, Especial):
+  // Estadística = Math.floor(((2 * Base + IV) * Nivel) / 100) + 5
+  const calcCombatStat = (base: number, statIv: number) => {
+    return Math.floor(((2 * base + statIv) * lvl) / 100) + 5;
+  };
+
   return {
-    hp: Math.floor(((defaultB.hp * 2 + iv.hp) * lvl) / 100 + lvl + 10),
-    attack: Math.floor(((defaultB.attack * 2 + iv.attack) * lvl) / 100 + 5),
-    defense: Math.floor(((defaultB.defense * 2 + iv.defense) * lvl) / 100 + 5),
-    speed: Math.floor(((defaultB.speed * 2 + iv.speed) * lvl) / 100 + 5),
-    special: Math.floor(((defaultB.special * 2 + iv.special) * lvl) / 100 + 5),
+    hp: calcHp(b.hp, iv.hp),
+    attack: calcCombatStat(b.attack, iv.attack),
+    defense: calcCombatStat(b.defense, iv.defense),
+    speed: calcCombatStat(b.speed, iv.speed),
+    special: calcCombatStat(b.special, iv.special),
   };
 }
 

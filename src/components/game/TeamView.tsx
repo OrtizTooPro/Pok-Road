@@ -174,7 +174,7 @@ export const TeamView: React.FC = () => {
               const maxExp = pokemon.maxExp || calculateMaxExpForLevel(level);
               const currentExp = pokemon.exp || 0;
               const expPercent = Math.min(100, Math.max(0, Math.round((currentExp / maxExp) * 100)));
-              const stats = pokemon.stats || calculatePokemonStats(level, pokemon.stage || 1);
+              const stats = calculatePokemonStats(level, pokemon.stage || 1, pokemon.species || pokemon.name, pokemon.ivs);
               const isLeader = idx === 0;
 
               const isDropTarget = dropTarget?.type === 'TEAM' && dropTarget?.index === idx;
@@ -278,10 +278,21 @@ export const TeamView: React.FC = () => {
                       </div>
 
                       {/* Stats Summary Badges */}
-                      <div className="grid grid-cols-3 gap-1 pt-0.5 text-[9px] font-extrabold">
-                        <span className="text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200 truncate">PS:{stats.hp}</span>
-                        <span className="text-rose-700 bg-rose-50 px-1 py-0.2 rounded border border-rose-200 truncate">ATK:{stats.attack}</span>
-                        <span className="text-blue-700 bg-blue-50 px-1 py-0.2 rounded border border-blue-200 truncate">DEF:{stats.defense}</span>
+                      <div className="space-y-1 pt-0.5">
+                        <div className="flex items-center justify-between text-[9px] font-extrabold bg-slate-100 p-1 rounded border border-slate-300">
+                          <span className="text-slate-800">COMBATE (NV.{level}):</span>
+                          <span className="text-emerald-700">PS:{stats.hp}</span>
+                          <span className="text-rose-700">ATK:{stats.attack}</span>
+                          <span className="text-blue-700">DEF:{stats.defense}</span>
+                        </div>
+                        {kantoMatch?.baseStats && (
+                          <div className="flex items-center justify-between text-[8px] font-bold text-gray-600 px-0.5">
+                            <span>Base Especie:</span>
+                            <span className="font-mono font-black text-gray-800">
+                              BST {kantoMatch.baseStats.hp + kantoMatch.baseStats.attack + kantoMatch.baseStats.defense + kantoMatch.baseStats.speed + kantoMatch.baseStats.special} (ATK Base: {kantoMatch.baseStats.attack})
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -788,7 +799,7 @@ export const TeamView: React.FC = () => {
                 {(() => {
                   const speciesName = selectedPokemon.pokemon.species || selectedPokemon.pokemon.name;
                   const kantoMatch = findPokemonByName(speciesName);
-                  const st = selectedPokemon.pokemon.stats || calculatePokemonStats(selectedPokemon.pokemon.level || 5, selectedPokemon.pokemon.stage || 1, speciesName, selectedPokemon.pokemon.ivs);
+                  const st = calculatePokemonStats(selectedPokemon.pokemon.level || 5, selectedPokemon.pokemon.stage || 1, speciesName, selectedPokemon.pokemon.ivs);
                   const judge = getPokemonPotentialJudgement(selectedPokemon.pokemon.ivs);
                   const b = kantoMatch?.baseStats;
                   const bst = b ? b.hp + b.attack + b.defense + b.speed + b.special : null;
@@ -810,9 +821,15 @@ export const TeamView: React.FC = () => {
                       </div>
 
                       {b && (
-                        <div className="flex items-center justify-between text-[10px] font-black bg-slate-100 text-slate-800 px-2.5 py-1 rounded border border-slate-300">
-                          <span>ESPECIE {speciesName.toUpperCase()} (STATS BASE OFICIALES)</span>
-                          <span className="bg-slate-900 text-yellow-300 px-1.5 py-0.2 rounded font-mono">BST: {bst}</span>
+                        <div className="bg-slate-900 text-white p-2.5 rounded-md border border-slate-800 space-y-1">
+                          <div className="flex items-center justify-between text-[11px] font-black">
+                            <span className="text-yellow-400 uppercase tracking-wide">ESPECIE {speciesName.toUpperCase()} — BASE OFICIAL GEN 1</span>
+                            <span className="bg-yellow-400 text-slate-900 px-2 py-0.5 rounded font-mono font-black">BST: {bst}</span>
+                          </div>
+                          <p className="text-[10px] text-gray-300 font-medium leading-relaxed">
+                            • <strong>Base Especie (Pokédex)</strong>: Atributos innatos oficiales (PS {b.hp}, Atk {b.attack}, Def {b.defense}, Vel {b.speed}, Esp {b.special}).<br/>
+                            • <strong>Combate Nvl. {selectedPokemon.pokemon.level || 5}</strong>: Valores calculados con la fórmula oficial Gen 1 según nivel e IVs.
+                          </p>
                         </div>
                       )}
 

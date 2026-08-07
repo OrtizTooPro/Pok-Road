@@ -450,6 +450,18 @@ export const KantoPokedexView: React.FC = () => {
                         </div>
                       </div>
                     </div>
+
+                    <div className="mt-2 bg-blue-50/90 border border-blue-200 p-2 rounded text-[10px] text-blue-900 leading-tight font-medium space-y-0.5">
+                      <p className="font-black text-blue-950 flex items-center gap-1">
+                        <span>💡 FÓRMULA DE COMBATE OFICIAL EN JUEGO</span>
+                      </p>
+                      <p>
+                        A Nvl. 5, las estadísticas de combate resultantes con la fórmula Gen 1 para {selectedPokemon.name} son:
+                      </p>
+                      <div className="font-mono font-bold text-[9.5px] text-blue-950 pt-0.5">
+                        PS: {Math.floor(((2 * selectedPokemon.baseStats.hp + 15) * 5) / 100) + 15} • ATK: {Math.floor(((2 * selectedPokemon.baseStats.attack + 15) * 5) / 100) + 5} • DEF: {Math.floor(((2 * selectedPokemon.baseStats.defense + 15) * 5) / 100) + 5} • VEL: {Math.floor(((2 * selectedPokemon.baseStats.speed + 15) * 5) / 100) + 5} • ESP: {Math.floor(((2 * selectedPokemon.baseStats.special + 15) * 5) / 100) + 5}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Evolutionary Chain Section */}

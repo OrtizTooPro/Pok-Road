@@ -602,6 +602,40 @@ export const CharacterSetup: React.FC = () => {
                               </span>
                             </div>
 
+                            {/* Base Stats & Initial Level 5 Stats Preview */}
+                            {kantoMatch?.baseStats && (
+                              <div className="space-y-1 bg-white/90 p-2.5 rounded border border-amber-300 text-[10px]">
+                                <div className="flex items-center justify-between font-black text-amber-950 border-b border-amber-200 pb-1">
+                                  <span>ESTADÍSTICAS BASE DE LA ESPECIE (GEN 1)</span>
+                                  <span className="bg-amber-900 text-yellow-300 px-1.5 py-0.2 rounded font-mono text-[9px]">
+                                    BST: {kantoMatch.baseStats.hp + kantoMatch.baseStats.attack + kantoMatch.baseStats.defense + kantoMatch.baseStats.speed + kantoMatch.baseStats.special}
+                                  </span>
+                                </div>
+                                <div className="grid grid-cols-5 gap-1 text-center font-bold pt-0.5">
+                                  <div className="bg-emerald-50 p-1 rounded border border-emerald-200 text-emerald-900">
+                                    <span className="block text-[8px] text-emerald-700">PS BASE</span>
+                                    <span className="font-mono text-[11px] font-black">{kantoMatch.baseStats.hp}</span>
+                                  </div>
+                                  <div className="bg-rose-50 p-1 rounded border border-rose-200 text-rose-900">
+                                    <span className="block text-[8px] text-rose-700">ATK BASE</span>
+                                    <span className="font-mono text-[11px] font-black">{kantoMatch.baseStats.attack}</span>
+                                  </div>
+                                  <div className="bg-blue-50 p-1 rounded border border-blue-200 text-blue-900">
+                                    <span className="block text-[8px] text-blue-700">DEF BASE</span>
+                                    <span className="font-mono text-[11px] font-black">{kantoMatch.baseStats.defense}</span>
+                                  </div>
+                                  <div className="bg-amber-50 p-1 rounded border border-amber-200 text-amber-900">
+                                    <span className="block text-[8px] text-amber-700">VEL BASE</span>
+                                    <span className="font-mono text-[11px] font-black">{kantoMatch.baseStats.speed}</span>
+                                  </div>
+                                  <div className="bg-purple-50 p-1 rounded border border-purple-200 text-purple-900">
+                                    <span className="block text-[8px] text-purple-700">ESP BASE</span>
+                                    <span className="font-mono text-[11px] font-black">{kantoMatch.baseStats.special}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
                             {/* Evolution Chain Preview */}
                             <div className="space-y-1">
                               <span className="text-[10px] font-black uppercase text-amber-900 block">LÍNEA EVOLUTIVA DE KANTO:</span>
