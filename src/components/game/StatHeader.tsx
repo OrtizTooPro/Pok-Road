@@ -233,21 +233,21 @@ export const StatHeader: React.FC = () => {
 
         {/* Hall of Fame Statue Progress Meter */}
         <div 
-          title="MEDIDOR DE ESTATUA: Representa la puntuación total de leyenda. Si alcanzas 100% a los 30 años, se erigirá una estatua en el Salón de la Fama."
+          title="MEDIDOR DE ESTATUA DE LEYENDA: El colofón supremo de tu viaje. Se completa en la etapa final (Años 28-30)."
           className="relative group pt-2 border-t-2 border-dotted border-gray-400 cursor-help"
         >
           <div className="flex items-center justify-between text-xs font-bold mb-1">
             <div className="flex items-center space-x-1.5 text-gray-800 uppercase">
               <Trophy className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>MEDIDOR DE ESTATUA EN SALÓN DE LA FAMA</span>
+              <span>ESTATUA EN SALÓN DE LA FAMA (COLOFÓN DE LEYENDA)</span>
             </div>
-            <span className="text-red-600 font-black">
+            <span className="text-amber-700 font-black">
               {career.legendaryScore}% / 100%
             </span>
           </div>
-          <div className="w-full bg-gray-200 h-3 rounded-md border-2 border-gray-800 p-0.5 overflow-hidden shadow-inner">
+          <div className="w-full bg-gray-200 h-3.5 rounded-md border-2 border-gray-800 p-0.5 overflow-hidden shadow-inner">
             <div 
-              className="bg-amber-400 border border-gray-900 h-full rounded-sm transition-all duration-500"
+              className="bg-gradient-to-r from-amber-500 to-yellow-300 border border-gray-900 h-full rounded-sm transition-all duration-500"
               style={{ width: `${career.legendaryScore}%` }}
             ></div>
           </div>
@@ -255,11 +255,11 @@ export const StatHeader: React.FC = () => {
           {/* Tooltip Card */}
           <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-72 p-2.5 bg-gray-900 text-white text-[11px] rounded-md shadow-2xl border-2 border-gray-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-30 font-sans">
             <div className="flex items-center space-x-1.5 text-amber-400 font-black mb-1 border-b border-gray-700 pb-1">
-              <Trophy className="w-3.5 h-3.5 shrink-0" />
-              <span>Salón de la Fama (Meta Final)</span>
+              <Trophy className="w-3.5 h-3.5 shrink-0 text-yellow-400" />
+              <span>Estatua de Oro Inmortal (Gran Logro Final)</span>
             </div>
             <p className="text-gray-300 font-medium leading-tight">
-              Mide tu puntuación acumulada de leyenda. Al llegar al 100% al completar los 30 años, consagrarás tu carrera con una estatua conmemorativa.
+              La Estatua es el logro difícil y definitivo de tu aventura. Se adquiere en la etapa final (Años 28-30). Al alcanzar el 100% completando tu camino (Combate, Pokédex o Mentoría), erigirás tu Estatua de Oro en la entrada del Salón de la Fama de Kanto.
             </p>
           </div>
         </div>

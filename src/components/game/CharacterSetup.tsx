@@ -478,17 +478,6 @@ export const CharacterSetup: React.FC = () => {
                           </button>
                         ))}
                       </div>
-
-                      <div className="pt-2 flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => handleGoToStep(4)}
-                          className="w-full sm:w-auto px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded font-black text-xs uppercase border-2 border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center justify-center gap-2 transition-all cursor-pointer"
-                        >
-                          <span>PASO 4: ELEGIR INICIAL</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </button>
-                      </div>
                     </motion.div>
                   )}
 
@@ -631,19 +620,19 @@ export const CharacterSetup: React.FC = () => {
                         </h4>
                         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-[11px] font-bold">
                           <div className="p-2 rounded bg-white border border-gray-800 text-amber-800">
-                            HABILIDAD: <span className="font-black">{specialization === 'Combate' ? '65' : '55'}</span>
+                            HABILIDAD: <span className="font-black">{specialization === 'Combate' ? '35' : '25'}</span>
                           </div>
                           <div className="p-2 rounded bg-white border border-gray-800 text-sky-800">
-                            POPULARIDAD: <span className="font-black">{specialization === 'Estrategia' ? '25' : '15'}</span>
+                            POPULARIDAD: <span className="font-black">{specialization === 'Estrategia' ? '20' : '10'}</span>
                           </div>
                           <div className="p-2 rounded bg-white border border-gray-800 text-rose-800">
-                            VÍNCULO: <span className="font-black">{specialization === 'Crianza' ? '95' : '80'}</span>
+                            VÍNCULO: <span className="font-black">{specialization === 'Crianza' ? '50' : '35'}</span>
                           </div>
                           <div className="p-2 rounded bg-white border border-gray-800 text-emerald-800">
-                            RESISTENCIA: <span className="font-black">{specialization === 'Captura' ? '100' : '90'}</span>
+                            RESISTENCIA: <span className="font-black">{specialization === 'Captura' ? '85' : '75'}</span>
                           </div>
                           <div className="p-2 rounded bg-white border border-gray-800 text-emerald-900 col-span-2 sm:col-span-1">
-                            DINERO: <span className="font-black">${specialization === 'Estrategia' ? '4,000' : '3,000'}</span>
+                            DINERO: <span className="font-black">${specialization === 'Estrategia' ? '2,000' : '1,000'}</span>
                           </div>
                         </div>
                       </div>

@@ -1,10 +1,90 @@
-import { PokemonMember, PokemonStats, TeamExpSummary, MemberExpGain, GameEvent, OptionChoice } from '../types';
+import { PokemonMember, PokemonStats, PokemonIVs, TeamExpSummary, MemberExpGain, GameEvent, OptionChoice } from '../types';
 import { findPokemonByName } from '../data/kantoPokedex';
 
 interface EvolutionRule {
   fromSpecies: string;
   toSpecies: string;
   minLevel: number;
+}
+
+export function generateRandomIVs(): PokemonIVs {
+  return {
+    hp: Math.floor(Math.random() * 31) + 1,
+    attack: Math.floor(Math.random() * 31) + 1,
+    defense: Math.floor(Math.random() * 31) + 1,
+    speed: Math.floor(Math.random() * 31) + 1,
+    special: Math.floor(Math.random() * 31) + 1,
+  };
+}
+
+export function getPokemonPotentialJudgement(ivs?: PokemonIVs): {
+  overallLabel: string;
+  tierClass: string;
+  badgeColor: string;
+  stars: string;
+  bestStatLabel: string;
+  summaryText: string;
+} {
+  if (!ivs) {
+    return {
+      overallLabel: 'Potencial Aceptable',
+      tierClass: 'text-amber-900 bg-amber-50 border-amber-300',
+      badgeColor: 'bg-amber-500',
+      stars: '★ ★',
+      bestStatLabel: 'Estadísticas equilibradas',
+      summaryText: 'Evaluación del Juez de Genes: Demuestra un rendimiento físico y táctico estándar.'
+    };
+  }
+
+  const total = ivs.hp + ivs.attack + ivs.defense + ivs.speed + ivs.special; // max 155, min 5
+  const statEntries = [
+    { stat: 'hp', name: 'Puntos de Salud', value: ivs.hp },
+    { stat: 'attack', name: 'Ataque', value: ivs.attack },
+    { stat: 'defense', name: 'Defensa', value: ivs.defense },
+    { stat: 'speed', name: 'Velocidad', value: ivs.speed },
+    { stat: 'special', name: 'Especial', value: ivs.special },
+  ];
+  statEntries.sort((a, b) => b.value - a.value);
+
+  const bestStat = statEntries[0];
+  let bestStatTerm = 'Inmejorable';
+  if (bestStat.value >= 31) bestStatTerm = '¡Sin igual!';
+  else if (bestStat.value >= 26) bestStatTerm = 'Espectacular';
+  else if (bestStat.value >= 18) bestStatTerm = 'Notable';
+  else if (bestStat.value >= 10) bestStatTerm = 'Decente';
+  else bestStatTerm = 'Normal';
+
+  let overallLabel = 'Potencial Aceptable';
+  let tierClass = 'text-amber-950 bg-amber-50 border-amber-400';
+  let badgeColor = 'bg-amber-500';
+  let stars = '★ ★';
+
+  if (total >= 135) {
+    overallLabel = 'Potencial Extraordinario (S-Tier)';
+    tierClass = 'text-purple-950 bg-purple-50 border-purple-400';
+    badgeColor = 'bg-purple-600';
+    stars = '★ ★ ★ ★ ★';
+  } else if (total >= 110) {
+    overallLabel = 'Potencial Excelente (A-Tier)';
+    tierClass = 'text-indigo-950 bg-indigo-50 border-indigo-400';
+    badgeColor = 'bg-indigo-600';
+    stars = '★ ★ ★ ★';
+  } else if (total >= 80) {
+    overallLabel = 'Potencial Superior (B-Tier)';
+    tierClass = 'text-emerald-950 bg-emerald-50 border-emerald-400';
+    badgeColor = 'bg-emerald-600';
+    stars = '★ ★ ★';
+  } else if (total < 50) {
+    overallLabel = 'Potencial Básico';
+    tierClass = 'text-slate-800 bg-slate-100 border-slate-300';
+    badgeColor = 'bg-slate-500';
+    stars = '★';
+  }
+
+  const bestStatLabel = `Destaca especialmente en ${bestStat.name} (${bestStatTerm})`;
+  const summaryText = `Evaluación del Juez de Genes: Pokémon con un ${overallLabel}. ${bestStatLabel}.`;
+
+  return { overallLabel, tierClass, badgeColor, stars, bestStatLabel, summaryText };
 }
 
 export const EVOLUTION_RULES: EvolutionRule[] = [
@@ -84,33 +164,39 @@ export const EVOLUTION_RULES: EvolutionRule[] = [
 ];
 
 export function calculateMaxExpForLevel(level: number): number {
-  return Math.round(100 + level * 25 + Math.pow(level, 1.3) * 6);
+  return Math.round(150 + level * 35 + Math.pow(level, 1.35) * 8);
 }
 
-export function calculatePokemonStats(level: number, stage: number = 1, species?: string): PokemonStats {
+export function calculatePokemonStats(
+  level: number, 
+  stage: number = 1, 
+  species?: string,
+  ivs?: PokemonIVs
+): PokemonStats {
   const lvl = Math.max(1, level);
   const stg = Math.max(1, stage);
+  const iv = ivs || { hp: 16, attack: 16, defense: 16, speed: 16, special: 16 };
 
   if (species) {
     const kantoMatch = findPokemonByName(species);
     if (kantoMatch && kantoMatch.baseStats) {
       const b = kantoMatch.baseStats;
       return {
-        hp: Math.floor(((b.hp * 2) * lvl) / 100 + lvl + 10),
-        attack: Math.floor(((b.attack * 2) * lvl) / 100 + 5),
-        defense: Math.floor(((b.defense * 2) * lvl) / 100 + 5),
-        speed: Math.floor(((b.speed * 2) * lvl) / 100 + 5),
-        special: Math.floor(((b.special * 2) * lvl) / 100 + 5),
+        hp: Math.floor(((b.hp * 2 + iv.hp) * lvl) / 100 + lvl + 10),
+        attack: Math.floor(((b.attack * 2 + iv.attack) * lvl) / 100 + 5),
+        defense: Math.floor(((b.defense * 2 + iv.defense) * lvl) / 100 + 5),
+        speed: Math.floor(((b.speed * 2 + iv.speed) * lvl) / 100 + 5),
+        special: Math.floor(((b.special * 2 + iv.special) * lvl) / 100 + 5),
       };
     }
   }
 
   return {
-    hp: Math.floor(22 + lvl * 2.9 + stg * 12),
-    attack: Math.floor(12 + lvl * 2.1 + stg * 9),
-    defense: Math.floor(10 + lvl * 2.0 + stg * 8),
-    speed: Math.floor(11 + lvl * 2.1 + stg * 8),
-    special: Math.floor(14 + lvl * 2.3 + stg * 9),
+    hp: Math.floor(22 + lvl * 2.9 + stg * 12 + (iv.hp * lvl) / 100),
+    attack: Math.floor(12 + lvl * 2.1 + stg * 9 + (iv.attack * lvl) / 100),
+    defense: Math.floor(10 + lvl * 2.0 + stg * 8 + (iv.defense * lvl) / 100),
+    speed: Math.floor(11 + lvl * 2.1 + stg * 8 + (iv.speed * lvl) / 100),
+    special: Math.floor(14 + lvl * 2.3 + stg * 9 + (iv.special * lvl) / 100),
   };
 }
 
@@ -164,32 +250,32 @@ export function calculateEventExpGain(
   specialization: string = 'Combate',
   trainerBond: number = 80
 ): number {
-  let baseExp = 120;
+  let baseExp = 75;
 
   switch (eventCategory) {
     case 'LEAGUE_TOURNAMENT':
-      baseExp = 260;
-      break;
-    case 'GYM_BATTLE':
-      baseExp = 220;
-      break;
-    case 'VILLAIN_TEAM':
       baseExp = 180;
       break;
+    case 'GYM_BATTLE':
+      baseExp = 150;
+      break;
+    case 'VILLAIN_TEAM':
+      baseExp = 120;
+      break;
     case 'RIVAL_MATCH':
-      baseExp = 160;
+      baseExp = 100;
       break;
     case 'WILD_ENCOUNTER':
-      baseExp = 120;
+      baseExp = 75;
       break;
     case 'LIFESTYLE':
-      baseExp = 80;
+      baseExp = 50;
       break;
     default:
-      baseExp = 120;
+      baseExp = 75;
   }
 
-  let multiplier = isVictory ? 1.5 : 1.15;
+  let multiplier = isVictory ? 1.35 : 1.1;
 
   // Specialization bonuses
   if (specialization === 'Crianza') multiplier += 0.25;
@@ -256,7 +342,8 @@ export function processTeamLevelingAndEvolution(
     let newLevel = currentLvl;
     let newMaxExp = currentMaxExp;
     let didLevelUp = false;
-    let oldStats = mon.stats || calculatePokemonStats(currentLvl, mon.stage || 1, mon.species || mon.name);
+    const monIVs = mon.ivs || generateRandomIVs();
+    let oldStats = mon.stats || calculatePokemonStats(currentLvl, mon.stage || 1, mon.species || mon.name, monIVs);
 
     // Check level up loop
     while (currentExp >= newMaxExp && newLevel < 100) {
@@ -294,7 +381,7 @@ export function processTeamLevelingAndEvolution(
       }
     }
 
-    const newStats = calculatePokemonStats(newLevel, newStage, newSpecies);
+    const newStats = calculatePokemonStats(newLevel, newStage, newSpecies, monIVs);
     const statGain = {
       hp: newStats.hp - oldStats.hp,
       attack: newStats.attack - oldStats.attack,
@@ -327,6 +414,7 @@ export function processTeamLevelingAndEvolution(
 
     return {
       ...mon,
+      ivs: monIVs,
       level: newLevel,
       exp: currentExp,
       maxExp: newMaxExp,
@@ -396,8 +484,11 @@ export function normalizePokemonReward(
     finalName = currentSpecies;
   }
 
+  const finalIVs = reward.ivs || generateRandomIVs();
+
   return {
     ...reward,
+    ivs: finalIVs,
     name: finalName,
     species: currentSpecies,
     level: targetLvl,
@@ -405,8 +496,56 @@ export function normalizePokemonReward(
     type: finalType,
     spriteUrl: finalSprite,
     maxExp: calculateMaxExpForLevel(targetLvl),
-    stats: calculatePokemonStats(targetLvl, currentStage, currentSpecies),
+    stats: calculatePokemonStats(targetLvl, currentStage, currentSpecies, finalIVs),
     moves: getPokemonMoves(currentSpecies, targetLvl, finalType)
+  };
+}
+
+export function evolvePokemonWithStone(member: PokemonMember, stoneItemId: string): PokemonMember {
+  let targetSpecies = '';
+  const current = member.species || member.name;
+
+  if (stoneItemId === 'fire-stone') {
+    if (current === 'Eevee') targetSpecies = 'Flareon';
+    if (current === 'Growlithe') targetSpecies = 'Arcanine';
+    if (current === 'Vulpix') targetSpecies = 'Ninetales';
+  } else if (stoneItemId === 'water-stone') {
+    if (current === 'Eevee') targetSpecies = 'Vaporeon';
+    if (current === 'Poliwhirl') targetSpecies = 'Poliwrath';
+    if (current === 'Staryu') targetSpecies = 'Starmie';
+    if (current === 'Shellder') targetSpecies = 'Cloyster';
+  } else if (stoneItemId === 'thunder-stone') {
+    if (current === 'Pikachu') targetSpecies = 'Raichu';
+    if (current === 'Eevee') targetSpecies = 'Jolteon';
+  } else if (stoneItemId === 'leaf-stone') {
+    if (current === 'Bellsprout' || current === 'Weepinbell') targetSpecies = 'Victreebel';
+    if (current === 'Gloom' || current === 'Oddish') targetSpecies = 'Vileplume';
+    if (current === 'Exeggcute') targetSpecies = 'Exeggutor';
+  } else if (stoneItemId === 'moon-stone') {
+    if (current === 'Nidoran♂' || current === 'Nidorino') targetSpecies = 'Nidoking';
+    if (current === 'Nidorina' || current === 'Nidoran♀') targetSpecies = 'Nidoqueen';
+    if (current === 'Jigglypuff') targetSpecies = 'Wigglytuff';
+    if (current === 'Clefairy') targetSpecies = 'Clefable';
+  }
+
+  if (!targetSpecies) return member;
+
+  const kantoMatch = findPokemonByName(targetSpecies);
+  const nextStage = Math.min(3, (member.stage || 1) + 1);
+  const newLvl = Math.max(member.level, member.level + 2);
+  const monIVs = member.ivs || generateRandomIVs();
+
+  return {
+    ...member,
+    ivs: monIVs,
+    name: targetSpecies,
+    species: targetSpecies,
+    stage: nextStage,
+    level: newLvl,
+    type: kantoMatch ? kantoMatch.types.join(' / ') : member.type,
+    spriteUrl: kantoMatch ? kantoMatch.sprite : member.spriteUrl,
+    stats: calculatePokemonStats(newLvl, nextStage, targetSpecies, monIVs),
+    moves: getPokemonMoves(targetSpecies, newLvl, kantoMatch ? kantoMatch.types.join(' / ') : member.type)
   };
 }
 

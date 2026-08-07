@@ -8,6 +8,7 @@ import { GameProvider, useGame } from './context/GameContext';
 import { HeaderNav } from './components/layout/HeaderNav';
 import { Footer } from './components/layout/Footer';
 import { InfoModals } from './components/layout/InfoModals';
+import { ShopModal } from './components/game/ShopModal';
 import { CharacterSetup } from './components/game/CharacterSetup';
 import { StatHeader } from './components/game/StatHeader';
 import { EventCard } from './components/game/EventCard';
@@ -80,6 +81,7 @@ export default function App() {
         </main>
         <OutcomeModal />
         <InfoModals />
+        <ShopModal />
         <Footer />
       </div>
     </GameProvider>

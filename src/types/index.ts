@@ -10,6 +10,14 @@ export interface TrainerStats {
   money: number;        // Pokécupones / Pokédólares acumulados ($)
 }
 
+export interface PokemonIVs {
+  hp: number;      // IV de Puntos de Salud (1-31)
+  attack: number;  // IV de Ataque (1-31)
+  defense: number; // IV de Defensa (1-31)
+  speed: number;   // IV de Velocidad (1-31)
+  special: number; // IV de Especial (1-31)
+}
+
 export interface PokemonStats {
   hp: number;
   attack: number;
@@ -28,6 +36,7 @@ export interface PokemonMember {
   exp?: number;
   maxExp?: number;
   stats?: PokemonStats;
+  ivs?: PokemonIVs; // Valores Individuales Ocultos (1-31 por estadística)
   moves?: string[];
   stage: number; // 1, 2, 3
   isStarter?: boolean;
@@ -70,6 +79,7 @@ export interface Badge {
   iconName: string;
   description: string;
   statBonus?: string;
+  spriteUrl?: string;
 }
 
 export interface OptionChoice {
@@ -116,6 +126,7 @@ export interface CareerMetrics {
   daysSpent: number; // Total de días transcurridos en la región
   titlesWon: string[];
   team: PokemonMember[];
+  pcBox?: PokemonMember[]; // Sistema de Almacenamiento PC
   legendaryScore: number; // 0-100%
   unlockedAchievements: string[]; // Achievement IDs
 }
@@ -158,6 +169,7 @@ export interface GameState {
     statChanges: { stat: string; delta: number; label: string }[];
     badgeAwarded?: Badge;
     pokemonAwarded?: PokemonMember;
+    sentToPC?: boolean;
     evolvedPokemon?: string;
     newAchievements?: string[];
     chainedEventUnlockedTitle?: string;
@@ -169,7 +181,8 @@ export interface GameState {
       badgeText: string;
     };
   } | null;
-  activeModal: 'none' | 'league' | 'tournaments' | 'about' | 'privacy' | 'terms';
+  activeModal: 'none' | 'league' | 'tournaments' | 'about' | 'privacy' | 'terms' | 'shop' | 'inventory';
   activeTab: NavigationTab;
+  inventory: Record<string, number>;
   soundEnabled: boolean;
 }

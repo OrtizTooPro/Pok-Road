@@ -335,11 +335,24 @@ export const FinalTrainerCard: React.FC = () => {
               return (
                 <div
                   key={badge.id}
-                  className={`p-1.5 rounded border-2 text-center flex flex-col items-center justify-center ${
-                    isEarned ? 'bg-amber-100 border-amber-600 text-amber-900 font-bold' : 'bg-gray-100 border-gray-300 text-gray-400 opacity-50'
+                  className={`p-2 rounded border-2 text-center flex flex-col items-center justify-between transition-all ${
+                    isEarned
+                      ? 'bg-gradient-to-br from-amber-100 to-yellow-200 border-amber-600 text-amber-950 font-bold shadow-xs'
+                      : 'bg-gray-100 border-gray-300 text-gray-400 opacity-40 filter grayscale'
                   }`}
                 >
-                  <span className="text-xs font-black">{idx + 1}</span>
+                  <div className="w-8 h-8 flex items-center justify-center my-0.5">
+                    {badge.spriteUrl ? (
+                      <img
+                        src={badge.spriteUrl}
+                        alt={badge.name}
+                        className="w-7 h-7 object-contain [image-rendering:pixelated] filter drop-shadow"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <span className="text-xs font-black">{idx + 1}</span>
+                    )}
+                  </div>
                   <span className="text-[8px] font-extrabold truncate max-w-full uppercase">{badge.name.replace('Medalla ', '')}</span>
                 </div>
               );

@@ -1,24 +1,26 @@
 import React, { useState, useMemo } from 'react';
 import { KANTO_POKEDEX, KantoPokemon } from '../../data/kantoPokedex';
+import { getEvolutionFamily } from '../../data/kantoEvolutionLines';
 import { useGame } from '../../context/GameContext';
-import { Search, Sparkles, Filter, X, Eye, EyeOff, CheckCircle, BookOpen, Lock, Shield } from 'lucide-react';
+import { Search, Sparkles, Filter, X, Eye, EyeOff, CheckCircle, BookOpen, Lock, Shield, Sword, GitFork } from 'lucide-react';
+import { TypeChartModal } from './TypeChartModal';
 
 const TYPE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  Planta: { bg: 'bg-emerald-100', text: 'text-emerald-900', border: 'border-emerald-600' },
-  Veneno: { bg: 'bg-purple-100', text: 'text-purple-900', border: 'border-purple-600' },
-  Fuego: { bg: 'bg-amber-100', text: 'text-amber-900', border: 'border-amber-600' },
-  Agua: { bg: 'bg-blue-100', text: 'text-blue-900', border: 'border-blue-600' },
-  Volador: { bg: 'bg-indigo-100', text: 'text-indigo-900', border: 'border-indigo-600' },
-  Bicho: { bg: 'bg-lime-100', text: 'text-lime-900', border: 'border-lime-600' },
-  Normal: { bg: 'bg-gray-100', text: 'text-gray-900', border: 'border-gray-600' },
-  Eléctrico: { bg: 'bg-yellow-100', text: 'text-yellow-900', border: 'border-yellow-600' },
+  Planta: { bg: 'bg-emerald-100', text: 'text-emerald-950', border: 'border-emerald-600' },
+  Veneno: { bg: 'bg-purple-100', text: 'text-purple-950', border: 'border-purple-600' },
+  Fuego: { bg: 'bg-amber-100', text: 'text-amber-950', border: 'border-amber-600' },
+  Agua: { bg: 'bg-blue-100', text: 'text-blue-950', border: 'border-blue-600' },
+  Volador: { bg: 'bg-indigo-100', text: 'text-indigo-950', border: 'border-indigo-600' },
+  Bicho: { bg: 'bg-lime-100', text: 'text-lime-950', border: 'border-lime-600' },
+  Normal: { bg: 'bg-stone-100', text: 'text-stone-900', border: 'border-stone-500' },
+  Eléctrico: { bg: 'bg-yellow-100', text: 'text-yellow-950', border: 'border-yellow-600' },
   Tierra: { bg: 'bg-amber-200', text: 'text-amber-950', border: 'border-amber-800' },
-  Roca: { bg: 'bg-yellow-200', text: 'text-yellow-950', border: 'border-yellow-800' },
-  Hada: { bg: 'bg-pink-100', text: 'text-pink-900', border: 'border-pink-600' },
-  Lucha: { bg: 'bg-orange-100', text: 'text-orange-900', border: 'border-orange-600' },
-  Psíquico: { bg: 'bg-rose-100', text: 'text-rose-900', border: 'border-rose-600' },
+  Roca: { bg: 'bg-stone-200', text: 'text-stone-950', border: 'border-stone-800' },
+  Hada: { bg: 'bg-pink-100', text: 'text-pink-950', border: 'border-pink-600' },
+  Lucha: { bg: 'bg-orange-100', text: 'text-orange-950', border: 'border-orange-600' },
+  Psíquico: { bg: 'bg-rose-100', text: 'text-rose-950', border: 'border-rose-600' },
   Acero: { bg: 'bg-slate-200', text: 'text-slate-900', border: 'border-slate-600' },
-  Hielo: { bg: 'bg-cyan-100', text: 'text-cyan-900', border: 'border-cyan-600' },
+  Hielo: { bg: 'bg-cyan-100', text: 'text-cyan-950', border: 'border-cyan-600' },
   Fantasma: { bg: 'bg-violet-200', text: 'text-violet-950', border: 'border-violet-700' },
   Dragón: { bg: 'bg-teal-200', text: 'text-teal-950', border: 'border-teal-700' }
 };
@@ -29,6 +31,7 @@ export const KantoPokedexView: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>('TODOS');
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'VISTOS' | 'NO_VISTOS'>('TODOS');
   const [selectedPokemon, setSelectedPokemon] = useState<KantoPokemon | null>(null);
+  const [isTypeChartOpen, setIsTypeChartOpen] = useState(false);
 
   const teamNames = useMemo(() => {
     return state.career.team.map(m => m.name.toLowerCase());
@@ -167,39 +170,49 @@ export const KantoPokedexView: React.FC = () => {
 
       {/* Controls & Filter Section */}
       <div className="p-3 sm:p-4 bg-gray-50 border-b-2 border-gray-800 space-y-3">
-        {/* Status Tabs (TODOS / VISTOS / NO VISTOS) */}
-        <div className="flex items-center space-x-2 border-b-2 border-gray-200 pb-2 overflow-x-auto touch-scroll no-scrollbar shrink-0">
+        {/* Status Tabs & Type Chart Button */}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-gray-200 pb-2">
+          <div className="flex items-center space-x-2 overflow-x-auto touch-scroll no-scrollbar shrink-0">
+            <button
+              onClick={() => setStatusFilter('TODOS')}
+              className={`px-2.5 py-1 rounded text-xs font-black uppercase transition-all border-2 shrink-0 ${
+                statusFilter === 'TODOS'
+                  ? 'bg-gray-900 text-white border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-gray-800'
+              }`}
+            >
+              Todos (151)
+            </button>
+            <button
+              onClick={() => setStatusFilter('VISTOS')}
+              className={`px-2.5 py-1 rounded text-xs font-black uppercase transition-all border-2 flex items-center space-x-1 shrink-0 ${
+                statusFilter === 'VISTOS'
+                  ? 'bg-emerald-600 text-white border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                  : 'bg-white text-emerald-800 border-gray-300 hover:border-emerald-600'
+              }`}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Vistos ({seenCount})</span>
+            </button>
+            <button
+              onClick={() => setStatusFilter('NO_VISTOS')}
+              className={`px-2.5 py-1 rounded text-xs font-black uppercase transition-all border-2 flex items-center space-x-1 shrink-0 ${
+                statusFilter === 'NO_VISTOS'
+                  ? 'bg-gray-700 text-white border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                  : 'bg-white text-gray-600 border-gray-300 hover:border-gray-700'
+              }`}
+            >
+              <EyeOff className="w-3.5 h-3.5" />
+              <span>No Vistos ({151 - seenCount})</span>
+            </button>
+          </div>
+
           <button
-            onClick={() => setStatusFilter('TODOS')}
-            className={`px-2.5 py-1 rounded text-xs font-black uppercase transition-all border-2 shrink-0 ${
-              statusFilter === 'TODOS'
-                ? 'bg-gray-900 text-white border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
-                : 'bg-white text-gray-700 border-gray-300 hover:border-gray-800'
-            }`}
+            onClick={() => setIsTypeChartOpen(true)}
+            className="px-3 py-1 bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-black text-xs uppercase rounded border-2 border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center space-x-1.5 cursor-pointer shrink-0 active:translate-x-[1px] active:translate-y-[1px]"
           >
-            Todos (151)
-          </button>
-          <button
-            onClick={() => setStatusFilter('VISTOS')}
-            className={`px-2.5 py-1 rounded text-xs font-black uppercase transition-all border-2 flex items-center space-x-1 shrink-0 ${
-              statusFilter === 'VISTOS'
-                ? 'bg-emerald-600 text-white border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
-                : 'bg-white text-emerald-800 border-gray-300 hover:border-emerald-600'
-            }`}
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Vistos ({seenCount})</span>
-          </button>
-          <button
-            onClick={() => setStatusFilter('NO_VISTOS')}
-            className={`px-2.5 py-1 rounded text-xs font-black uppercase transition-all border-2 flex items-center space-x-1 shrink-0 ${
-              statusFilter === 'NO_VISTOS'
-                ? 'bg-gray-700 text-white border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
-                : 'bg-white text-gray-600 border-gray-300 hover:border-gray-700'
-            }`}
-          >
-            <EyeOff className="w-3.5 h-3.5" />
-            <span>No Vistos ({151 - seenCount})</span>
+            <Sword className="w-3.5 h-3.5 text-gray-950" />
+            <span>Tabla de Tipos</span>
           </button>
         </div>
 
@@ -240,87 +253,89 @@ export const KantoPokedexView: React.FC = () => {
         </div>
       </div>
 
-      {/* Grid of 151 Kanto Pokémon */}
-      <div className="p-3 sm:p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
-        {filteredList.map((pokemon) => {
-          const formattedId = `#${pokemon.id.toString().padStart(3, '0')}`;
-          const isSeen = seenPokemonSet.has(pokemon.name.toLowerCase());
-          const isInTeam = teamNames.includes(pokemon.name.toLowerCase());
+      {/* Grid of 151 Kanto Pokémon with Scrollable Container */}
+      <div className="p-3 sm:p-4 max-h-[58vh] sm:max-h-[66vh] overflow-y-auto touch-scroll border-b-2 border-gray-300">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
+          {filteredList.map((pokemon) => {
+            const formattedId = `#${pokemon.id.toString().padStart(3, '0')}`;
+            const isSeen = seenPokemonSet.has(pokemon.name.toLowerCase());
+            const isInTeam = teamNames.includes(pokemon.name.toLowerCase());
 
-          return (
-            <div
-              key={pokemon.id}
-              onClick={() => setSelectedPokemon(pokemon)}
-              className={`p-3 border-2 rounded-md relative overflow-hidden cursor-pointer transition-all flex flex-col items-center justify-between text-center group ${
-                isSeen
-                  ? isInTeam 
-                    ? 'bg-emerald-50/40 border-emerald-600 ring-2 ring-emerald-500 hover:shadow-lg' 
-                    : 'bg-white border-gray-800 hover:border-red-600 hover:shadow-lg'
-                  : 'bg-gray-100 border-gray-300 opacity-80 hover:border-gray-600'
-              }`}
-            >
-              {/* Pokédex Top Bar */}
-              <div className="w-full flex items-center justify-between text-[10px] font-black text-gray-600 mb-1">
-                <span className={isSeen ? 'text-red-600' : 'text-gray-400'}>{formattedId}</span>
-                {isSeen ? (
-                  isInTeam && (
-                    <span className="flex items-center gap-0.5 text-[8px] bg-emerald-100 text-emerald-900 px-1 py-0.2 rounded border border-emerald-600 font-extrabold">
-                      <CheckCircle className="w-2.5 h-2.5 text-emerald-600" />
-                      EQUIPO
-                    </span>
-                  )
-                ) : (
-                  <span className="flex items-center gap-0.5 text-[8px] bg-gray-200 text-gray-600 px-1 py-0.2 rounded border border-gray-400 font-bold">
-                    <Lock className="w-2.5 h-2.5 text-gray-500" />
-                    NO VISTO
-                  </span>
-                )}
-              </div>
-
-              {/* 2D Sprite or Silhouette */}
-              <div className={`my-1 relative w-16 h-16 rounded-md flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden shadow-inner border-2 ${
-                isSeen ? 'bg-gray-50 border-gray-200' : 'bg-gray-300/80 border-gray-400'
-              }`}>
-                <img
-                  src={pokemon.sprite}
-                  alt={isSeen ? pokemon.name : 'Pokémon Silueta'}
-                  style={!isSeen ? { filter: 'brightness(0)' } : undefined}
-                  className={`w-14 h-14 object-contain ${isSeen ? 'drop-shadow' : 'opacity-85'}`}
-                  referrerPolicy="no-referrer"
-                  loading="lazy"
-                />
-              </div>
-
-              {/* Name or Masked Name */}
-              <h3 className={`font-black text-xs uppercase tracking-tight my-1 truncate max-w-full ${
-                isSeen ? 'text-gray-900' : 'text-gray-500 italic'
-              }`}>
-                {isSeen ? pokemon.name : '???'}
-              </h3>
-
-              {/* Type Badges or Masked Badges */}
-              <div className="flex flex-wrap gap-1 justify-center w-full mt-1">
-                {isSeen ? (
-                  pokemon.types.map(t => {
-                    const style = TYPE_COLORS[t] || { bg: 'bg-gray-100', text: 'text-gray-900', border: 'border-gray-500' };
-                    return (
-                      <span
-                        key={t}
-                        className={`text-[8px] font-black px-1.5 py-0.2 rounded border ${style.bg} ${style.text} ${style.border} uppercase`}
-                      >
-                        {t}
+            return (
+              <div
+                key={pokemon.id}
+                onClick={() => setSelectedPokemon(pokemon)}
+                className={`p-3 border-2 rounded-md relative overflow-hidden cursor-pointer transition-all flex flex-col items-center justify-between text-center group ${
+                  isSeen
+                    ? isInTeam 
+                      ? 'bg-emerald-50/40 border-emerald-600 ring-2 ring-emerald-500 hover:shadow-lg' 
+                      : 'bg-white border-gray-800 hover:border-red-600 hover:shadow-lg'
+                    : 'bg-gray-100 border-gray-300 opacity-80 hover:border-gray-600'
+                }`}
+              >
+                {/* Pokédex Top Bar */}
+                <div className="w-full flex items-center justify-between text-[10px] font-black text-gray-600 mb-1">
+                  <span className={isSeen ? 'text-red-600' : 'text-gray-400'}>{formattedId}</span>
+                  {isSeen ? (
+                    isInTeam && (
+                      <span className="flex items-center gap-0.5 text-[8px] bg-emerald-100 text-emerald-900 px-1 py-0.2 rounded border border-emerald-600 font-extrabold">
+                        <CheckCircle className="w-2.5 h-2.5 text-emerald-600" />
+                        EQUIPO
                       </span>
-                    );
-                  })
-                ) : (
-                  <span className="text-[8px] font-black px-2 py-0.2 rounded border bg-gray-200 text-gray-500 border-gray-400 uppercase">
-                    ???
-                  </span>
-                )}
+                    )
+                  ) : (
+                    <span className="flex items-center gap-0.5 text-[8px] bg-gray-200 text-gray-600 px-1 py-0.2 rounded border border-gray-400 font-bold">
+                      <Lock className="w-2.5 h-2.5 text-gray-500" />
+                      NO VISTO
+                    </span>
+                  )}
+                </div>
+
+                {/* 2D Sprite or Silhouette */}
+                <div className={`my-1 relative w-16 h-16 rounded-md flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden shadow-inner border-2 ${
+                  isSeen ? 'bg-gray-50 border-gray-200' : 'bg-gray-300/80 border-gray-400'
+                }`}>
+                  <img
+                    src={pokemon.sprite}
+                    alt={isSeen ? pokemon.name : 'Pokémon Silueta'}
+                    style={!isSeen ? { filter: 'brightness(0)' } : undefined}
+                    className={`w-14 h-14 object-contain ${isSeen ? 'drop-shadow' : 'opacity-85'}`}
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                  />
+                </div>
+
+                {/* Name or Masked Name */}
+                <h3 className={`font-black text-xs uppercase tracking-tight my-1 truncate max-w-full ${
+                  isSeen ? 'text-gray-900' : 'text-gray-500 italic'
+                }`}>
+                  {isSeen ? pokemon.name : '???'}
+                </h3>
+
+                {/* Type Badges or Masked Badges */}
+                <div className="flex flex-wrap gap-1 justify-center w-full mt-1">
+                  {isSeen ? (
+                    pokemon.types.map(t => {
+                      const style = TYPE_COLORS[t] || { bg: 'bg-gray-100', text: 'text-gray-900', border: 'border-gray-500' };
+                      return (
+                        <span
+                          key={t}
+                          className={`text-[8px] font-black px-1.5 py-0.2 rounded border ${style.bg} ${style.text} ${style.border} uppercase`}
+                        >
+                          {t}
+                        </span>
+                      );
+                    })
+                  ) : (
+                    <span className="text-[8px] font-black px-2 py-0.2 rounded border bg-gray-200 text-gray-500 border-gray-400 uppercase">
+                      ???
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* Pokemon Detail Modal */}
@@ -361,14 +376,17 @@ export const KantoPokedexView: React.FC = () => {
                         {selectedPokemon.name}
                       </h3>
                       <div className="flex gap-1.5 mt-1">
-                        {selectedPokemon.types.map(t => (
-                          <span
-                            key={t}
-                            className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-gray-200 text-gray-800 border border-gray-600 uppercase"
-                          >
-                            {t}
-                          </span>
-                        ))}
+                        {selectedPokemon.types.map(t => {
+                          const style = TYPE_COLORS[t] || { bg: 'bg-gray-100', text: 'text-gray-900', border: 'border-gray-600' };
+                          return (
+                            <span
+                              key={t}
+                              className={`text-[10px] font-black px-2 py-0.5 rounded border ${style.bg} ${style.text} ${style.border} uppercase shadow-sm`}
+                            >
+                              {t}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -383,6 +401,121 @@ export const KantoPokedexView: React.FC = () => {
                       <span>{selectedPokemon.weight}</span>
                     </div>
                   </div>
+
+                  {/* Evolutionary Chain Section */}
+                  {(() => {
+                    const evoFamily = getEvolutionFamily(selectedPokemon.id);
+                    if (!evoFamily) return null;
+
+                    return (
+                      <div className="bg-slate-900 text-white border-2 border-gray-900 rounded-md p-3 space-y-2.5 shadow">
+                        <div className="flex items-center justify-between border-b border-gray-700 pb-2">
+                          <span className="text-xs font-black uppercase text-yellow-400 flex items-center gap-1.5">
+                            <GitFork className="w-4 h-4 text-amber-400" />
+                            LÍNEA EVOLUTIVA Y MÉTODOS (KANTO)
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-sans font-bold">
+                            Toca para ver
+                          </span>
+                        </div>
+
+                        {/* Linear Chain */}
+                        {evoFamily.steps && evoFamily.steps.length > 0 && (
+                          <div className="flex flex-wrap items-center justify-center gap-1.5 py-1">
+                            {evoFamily.steps.map((step, idx) => {
+                              const stepMon = KANTO_POKEDEX.find(p => p.id === step.id);
+                              const isStepSeen = stepMon ? seenPokemonSet.has(stepMon.name.toLowerCase()) : false;
+
+                              return (
+                                <React.Fragment key={step.id}>
+                                  {idx > 0 && (
+                                    <div className="flex flex-col items-center justify-center text-center px-1">
+                                      <span className="text-[9px] font-black text-amber-300 bg-amber-950 px-1.5 py-0.5 rounded border border-amber-600 shadow-sm uppercase">
+                                        {step.methodToReach || 'Evolución'}
+                                      </span>
+                                      <span className="text-amber-400 font-black text-xs">➔</span>
+                                    </div>
+                                  )}
+
+                                  <button
+                                    onClick={() => {
+                                      if (stepMon) setSelectedPokemon(stepMon);
+                                    }}
+                                    className={`p-1.5 rounded-md border-2 flex flex-col items-center justify-center transition-all cursor-pointer min-w-[72px] ${
+                                      step.id === selectedPokemon.id
+                                        ? 'bg-yellow-400 text-gray-950 border-white ring-2 ring-yellow-300 shadow-lg scale-105'
+                                        : isStepSeen
+                                        ? 'bg-gray-800 text-gray-100 border-gray-600 hover:border-yellow-400 hover:bg-gray-700'
+                                        : 'bg-gray-950 text-gray-400 border-gray-800 hover:border-gray-600'
+                                    }`}
+                                  >
+                                    <img
+                                      src={step.sprite}
+                                      alt={step.name}
+                                      style={!isStepSeen ? { filter: 'brightness(0)' } : undefined}
+                                      className="w-10 h-10 object-contain"
+                                      referrerPolicy="no-referrer"
+                                    />
+                                    <span className="text-[10px] font-black uppercase mt-1 truncate max-w-[75px]">
+                                      {isStepSeen ? step.name : `#${step.id}`}
+                                    </span>
+                                    <span className="text-[8px] text-gray-400 font-mono">
+                                      #{step.id.toString().padStart(3, '0')}
+                                    </span>
+                                  </button>
+                                </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Branching Chain (Eevee) */}
+                        {evoFamily.branches && (
+                          <div className="space-y-1.5 pt-2 border-t border-gray-800">
+                            <span className="text-[10px] text-amber-300 font-black block text-center uppercase tracking-wide">
+                              EVOLUCIONES DISPONIBLES CON PIEDRAS:
+                            </span>
+                            <div className="grid grid-cols-3 gap-1.5">
+                              {evoFamily.branches.map(branch => {
+                                const branchMon = KANTO_POKEDEX.find(p => p.id === branch.id);
+                                const isBranchSeen = branchMon ? seenPokemonSet.has(branchMon.name.toLowerCase()) : false;
+
+                                return (
+                                  <button
+                                    key={branch.id}
+                                    onClick={() => {
+                                      if (branchMon) setSelectedPokemon(branchMon);
+                                    }}
+                                    className={`p-1.5 rounded border-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+                                      branch.id === selectedPokemon.id
+                                        ? 'bg-yellow-400 text-gray-950 border-white ring-2 ring-yellow-300 shadow-lg scale-105'
+                                        : isBranchSeen
+                                        ? 'bg-gray-800 text-gray-100 border-gray-600 hover:border-yellow-400'
+                                        : 'bg-gray-950 text-gray-400 border-gray-800 hover:border-gray-600'
+                                    }`}
+                                  >
+                                    <img
+                                      src={branch.sprite}
+                                      alt={branch.name}
+                                      style={!isBranchSeen ? { filter: 'brightness(0)' } : undefined}
+                                      className="w-9 h-9 object-contain"
+                                      referrerPolicy="no-referrer"
+                                    />
+                                    <span className="text-[9px] font-black uppercase mt-0.5 truncate max-w-[70px]">
+                                      {isBranchSeen ? branch.name : `#${branch.id}`}
+                                    </span>
+                                    <span className="text-[8px] bg-amber-950 text-amber-300 px-1 py-0.2 rounded border border-amber-700 mt-1 uppercase font-black">
+                                      {branch.methodToReach}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   <div className="bg-amber-50 border-2 border-amber-600 rounded p-3 text-xs leading-relaxed font-bold text-amber-950">
                     <p>"{selectedPokemon.description}"</p>
@@ -448,6 +581,12 @@ export const KantoPokedexView: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Official Type Chart Modal */}
+      <TypeChartModal
+        isOpen={isTypeChartOpen}
+        onClose={() => setIsTypeChartOpen(false)}
+      />
     </div>
   );
 };

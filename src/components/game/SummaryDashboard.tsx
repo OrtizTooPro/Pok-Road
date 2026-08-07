@@ -158,9 +158,21 @@ export const SummaryDashboard: React.FC = () => {
                 style={{ width: `${(totalBadges / 8) * 100}%` }}
               ></div>
             </div>
-            <p className="text-[10px] text-gray-600 font-bold truncate">
-              {totalBadges === 8 ? '🏆 ¡Todas las medallas conquistadas!' : `${8 - totalBadges} medallas restantes`}
-            </p>
+            {/* Mini badge sprites row */}
+            <div className="flex items-center gap-1 overflow-x-auto pt-0.5">
+              {REGIONAL_BADGES.slice(0, 8).map((b) => {
+                const isEarned = career.badgesWon.includes(b.id);
+                return (
+                  <div key={b.id} title={b.name} className={`w-5 h-5 rounded border flex items-center justify-center p-0.5 shrink-0 ${isEarned ? 'bg-amber-200 border-amber-600' : 'bg-gray-200 border-gray-300 opacity-30 filter grayscale'}`}>
+                    {b.spriteUrl ? (
+                      <img src={b.spriteUrl} alt={b.name} className="w-4 h-4 object-contain [image-rendering:pixelated]" referrerPolicy="no-referrer" />
+                    ) : (
+                      <span className="text-[8px] font-black">{b.name[0]}</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Specialization Bonus */}

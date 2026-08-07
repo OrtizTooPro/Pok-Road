@@ -180,14 +180,14 @@ export function inferEventOpponentType(event: GameEvent): string {
   const badgeId = event.badgeId?.toLowerCase() || '';
 
   // Gym Leaders
-  if (badgeId.includes('boulder') || title.includes('brock') || desc.includes('brock')) return 'Roca';
-  if (badgeId.includes('cascade') || title.includes('misty') || desc.includes('misty')) return 'Agua';
-  if (badgeId.includes('thunder') || title.includes('surge') || desc.includes('surge')) return 'Eléctrico';
-  if (badgeId.includes('rainbow') || title.includes('erika') || desc.includes('erika')) return 'Planta';
-  if (badgeId.includes('soul') || title.includes('koga') || desc.includes('koga')) return 'Veneno';
-  if (badgeId.includes('marsh') || title.includes('sabrina') || desc.includes('sabrina')) return 'Psíquico';
-  if (badgeId.includes('volcano') || title.includes('blaine') || desc.includes('blaine')) return 'Fuego';
-  if (badgeId.includes('earth') || title.includes('giovanni') || desc.includes('giovanni')) return 'Tierra';
+  if (badgeId.includes('roca') || badgeId.includes('boulder') || title.includes('brock') || desc.includes('brock')) return 'Roca';
+  if (badgeId.includes('cascada') || badgeId.includes('cascade') || title.includes('misty') || desc.includes('misty')) return 'Agua';
+  if (badgeId.includes('trueno') || badgeId.includes('thunder') || title.includes('surge') || desc.includes('surge')) return 'Eléctrico';
+  if (badgeId.includes('arcoiris') || badgeId.includes('rainbow') || title.includes('erika') || desc.includes('erika')) return 'Planta';
+  if (badgeId.includes('alma') || badgeId.includes('soul') || title.includes('koga') || desc.includes('koga')) return 'Veneno';
+  if (badgeId.includes('pantano') || badgeId.includes('marsh') || title.includes('sabrina') || desc.includes('sabrina')) return 'Psíquico';
+  if (badgeId.includes('volcan') || badgeId.includes('volcano') || title.includes('blaine') || desc.includes('blaine')) return 'Fuego';
+  if (badgeId.includes('tierra') || badgeId.includes('earth') || title.includes('giovanni') || desc.includes('giovanni')) return 'Tierra';
 
   // Elite Four
   if (title.includes('lorelei') || desc.includes('lorelei')) return 'Hielo';

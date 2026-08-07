@@ -1,10 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { useGame } from '../../context/GameContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, Trophy, Lock, Zap, HelpCircle, X, Info, Crown, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { MapPin, Trophy, Lock, Zap, HelpCircle, X, Info, Crown, ShieldAlert, ShieldCheck, ShoppingCart } from 'lucide-react';
 import { evaluateLeaderMatchup } from '../../utils/typeChart';
 import { normalizePokemonReward } from '../../utils/pokemonEvolution';
 import { findPokemonByName } from '../../data/kantoPokedex';
+import { checkShopAvailability } from '../../data/kantoItems';
+import { getBadgeById } from '../../data/badges';
 
 interface RewardExplanation {
   title: string;
@@ -12,14 +14,17 @@ interface RewardExplanation {
   categoryName: string;
   description: string;
   impactText: string;
+  badgeSpriteUrl?: string;
 }
 
 export const EventCard: React.FC = () => {
-  const { currentEvent, selectOption, state } = useGame();
+  const { currentEvent, selectOption, state, openModal } = useGame();
   const [activeExplanation, setActiveExplanation] = useState<RewardExplanation | null>(null);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   if (!currentEvent) return null;
+
+  const shopInfo = checkShopAvailability(currentEvent.location, currentEvent.title, currentEvent.description);
 
   const handlePointerDownReward = (
     e: React.PointerEvent | React.MouseEvent | React.TouchEvent,
@@ -132,6 +137,31 @@ export const EventCard: React.FC = () => {
             {currentEvent.description}
           </p>
         </div>
+
+        {/* Shop Availability Banner */}
+        {shopInfo.isAvailable && (
+          <div className="bg-emerald-950/90 border-2 border-emerald-500 rounded-md p-2.5 flex items-center justify-between gap-2 text-white shadow">
+            <div className="flex items-center space-x-2 min-w-0">
+              <div className="p-1 bg-emerald-400 rounded text-gray-950 font-black border border-gray-900 shrink-0">
+                <ShoppingCart className="w-4 h-4 text-gray-950" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-black text-emerald-300 uppercase truncate">
+                  {shopInfo.shopName}
+                </div>
+                <div className="text-[10px] text-emerald-100 font-sans truncate">
+                  ¡Servicio de Pokétienda disponible aquí!
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => openModal('shop')}
+              className="px-3 py-1 bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-black text-xs uppercase rounded border-2 border-gray-900 shadow shrink-0 cursor-pointer active:translate-y-0.5 flex items-center space-x-1"
+            >
+              <span>Entrar</span>
+            </button>
+          </div>
+        )}
 
         {/* Team Leader & Type Advantage Banner */}
         {(() => {
@@ -303,29 +333,41 @@ export const EventCard: React.FC = () => {
                     </span>
                   )}
 
-                  {option.awardBadgeId && (
-                    <span
-                      onPointerDown={(e) => handlePointerDownReward(e, {
-                        title: 'Medalla Oficial Kanto',
-                        icon: '🏆',
-                        categoryName: 'RECONOCIMIENTO DE LIGA',
-                        description: 'Premio acreditativo concedido por vencer en un Gimnasio o Torneo Oficial regional.',
-                        impactText: 'Otorga +5,000 Puntos a tu Puntuación Final y es requisito fundamental para desafiar al Alto Mando.'
-                      })}
-                      onPointerUp={(e) => handlePointerUpReward(e)}
-                      onClick={(e) => handleClickReward(e, {
-                        title: 'Medalla Oficial Kanto',
-                        icon: '🏆',
-                        categoryName: 'RECONOCIMIENTO DE LIGA',
-                        description: 'Premio acreditativo concedido por vencer en un Gimnasio o Torneo Oficial regional.',
-                        impactText: 'Otorga +5,000 Puntos a tu Puntuación Final y es requisito fundamental para desafiar al Alto Mando.'
-                      })}
-                      className="px-2 py-0.5 rounded bg-yellow-200 border border-gray-800 text-gray-900 flex items-center gap-1 font-extrabold shadow-xs cursor-help hover:bg-yellow-300 transition-colors"
-                      title="Mantén pulsado o haz clic para ver explicación"
-                    >
-                      <Trophy className="w-3 h-3 text-amber-700" /> MEDALLA <Info className="w-2.5 h-2.5 text-amber-800 opacity-70" />
-                    </span>
-                  )}
+                  {option.awardBadgeId && (() => {
+                    const badgeObj = getBadgeById(option.awardBadgeId);
+                    const badgeNameStr = badgeObj ? badgeObj.name.toUpperCase() : 'MEDALLA';
+                    return (
+                      <span
+                        onPointerDown={(e) => handlePointerDownReward(e, {
+                          title: badgeObj ? badgeObj.name : 'Medalla Oficial Kanto',
+                          icon: '🏆',
+                          categoryName: 'RECONOCIMIENTO DE LIGA',
+                          description: badgeObj ? `${badgeObj.description} (${badgeObj.gymLeader} • ${badgeObj.city})` : 'Premio acreditativo concedido por vencer en un Gimnasio o Torneo Oficial regional.',
+                          impactText: 'Otorga +5,000 Puntos a tu Puntuación Final y es requisito fundamental para desafiar al Alto Mando.',
+                          badgeSpriteUrl: badgeObj?.spriteUrl
+                        })}
+                        onPointerUp={(e) => handlePointerUpReward(e)}
+                        onClick={(e) => handleClickReward(e, {
+                          title: badgeObj ? badgeObj.name : 'Medalla Oficial Kanto',
+                          icon: '🏆',
+                          categoryName: 'RECONOCIMIENTO DE LIGA',
+                          description: badgeObj ? `${badgeObj.description} (${badgeObj.gymLeader} • ${badgeObj.city})` : 'Premio acreditativo concedido por vencer en un Gimnasio o Torneo Oficial regional.',
+                          impactText: 'Otorga +5,000 Puntos a tu Puntuación Final y es requisito fundamental para desafiar al Alto Mando.',
+                          badgeSpriteUrl: badgeObj?.spriteUrl
+                        })}
+                        className="px-2 py-0.5 rounded bg-amber-200 border border-gray-800 text-gray-900 flex items-center gap-1.5 font-extrabold shadow-xs cursor-help hover:bg-amber-300 transition-colors"
+                        title="Mantén pulsado o haz clic para ver explicación"
+                      >
+                        {badgeObj?.spriteUrl ? (
+                          <img src={badgeObj.spriteUrl} alt={badgeNameStr} className="w-4 h-4 object-contain [image-rendering:pixelated] filter drop-shadow" referrerPolicy="no-referrer" />
+                        ) : (
+                          <Trophy className="w-3 h-3 text-amber-700" />
+                        )}
+                        <span>{badgeNameStr}</span>
+                        <Info className="w-2.5 h-2.5 text-amber-800 opacity-70" />
+                      </span>
+                    );
+                  })()}
 
                   {option.statEffects.legendaryScoreDelta !== undefined && option.statEffects.legendaryScoreDelta !== 0 && (
                     <span
@@ -524,7 +566,13 @@ export const EventCard: React.FC = () => {
           {/* Header */}
           <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-3.5 flex items-center justify-between border-b-2 border-gray-900 shrink-0">
             <div className="flex items-center space-x-2.5">
-              <span className="text-2xl p-1 bg-white/20 rounded border border-white/30">{activeExplanation.icon}</span>
+              {activeExplanation.badgeSpriteUrl ? (
+                <div className="w-10 h-10 bg-amber-300 rounded border-2 border-gray-900 flex items-center justify-center shrink-0 shadow">
+                  <img src={activeExplanation.badgeSpriteUrl} alt={activeExplanation.title} className="w-8 h-8 object-contain [image-rendering:pixelated]" referrerPolicy="no-referrer" />
+                </div>
+              ) : (
+                <span className="text-2xl p-1 bg-white/20 rounded border border-white/30">{activeExplanation.icon}</span>
+              )}
               <div>
                 <span className="text-[10px] uppercase font-black tracking-widest text-yellow-300 block">
                   {activeExplanation.categoryName}

@@ -72,21 +72,32 @@ export const BadgeCase: React.FC = () => {
                     : 'bg-gray-100 border-dashed border-gray-300 filter grayscale opacity-40'
                 }`}
               >
-                {/* Badge Number Symbol with Glow */}
+                {/* Badge Original Sprite Symbol with Glow */}
                 <motion.div
                   initial={isEarned ? { scale: 0, rotate: -45 } : false}
                   animate={isEarned ? { scale: [0, 1.3, 1], rotate: 0 } : {}}
                   transition={{ delay: idx * 0.06 + 0.15, duration: 0.35, type: 'spring' }}
-                  className={`w-8 h-8 sm:w-7 sm:h-7 rounded border-2 border-gray-900 flex items-center justify-center mb-1 text-xs font-black relative overflow-hidden ${
+                  className={`w-10 h-10 sm:w-9 sm:h-9 rounded-md border-2 border-gray-900 flex items-center justify-center mb-1 relative overflow-hidden p-1 ${
                     isEarned 
-                      ? 'bg-amber-400 text-gray-900 shadow-[0_0_10px_rgba(251,191,36,0.8)]' 
-                      : 'bg-gray-300 text-gray-500'
+                      ? 'bg-amber-300 text-gray-900 shadow-[0_0_12px_rgba(251,191,36,0.9)]' 
+                      : 'bg-gray-200 text-gray-500'
                   }`}
                 >
                   {isEarned && (
-                    <div className="absolute inset-0 bg-white/40 animate-pulse pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-white/30 animate-pulse pointer-events-none"></div>
                   )}
-                  <span className="relative z-10">{idx + 1}</span>
+                  {badge.spriteUrl ? (
+                    <img 
+                      src={badge.spriteUrl} 
+                      alt={badge.name} 
+                      className={`w-7 h-7 object-contain [image-rendering:pixelated] transition-all filter drop-shadow ${
+                        isEarned ? 'brightness-110' : 'grayscale opacity-40'
+                      }`}
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <span className="relative z-10 font-black text-xs">{idx + 1}</span>
+                  )}
                 </motion.div>
 
                 <span className={`text-[10px] sm:text-[9px] font-black leading-tight truncate max-w-full uppercase ${isEarned ? 'text-amber-950' : 'text-gray-400'}`}>
@@ -163,6 +174,23 @@ export const BadgeCase: React.FC = () => {
                 </button>
               </div>
               <div className="p-4 space-y-3 bg-amber-50/50">
+                {/* Large Badge Sprite Showcase */}
+                <div className="flex justify-center my-1">
+                  <div className="w-20 h-20 bg-gradient-to-b from-amber-200 to-yellow-400 border-3 border-gray-900 rounded-lg p-2 flex items-center justify-center shadow-lg relative">
+                    <div className="absolute inset-0 bg-white/40 animate-pulse rounded-lg pointer-events-none"></div>
+                    {selectedBadge.spriteUrl ? (
+                      <img
+                        src={selectedBadge.spriteUrl}
+                        alt={selectedBadge.name}
+                        className="w-16 h-16 object-contain filter drop-shadow-md [image-rendering:pixelated]"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <Award className="w-12 h-12 text-gray-900" />
+                    )}
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black uppercase text-amber-900">LÍDER: {selectedBadge.gymLeader}</span>
                   <span className="text-[10px] bg-amber-200 text-amber-950 px-2 py-0.5 rounded border border-amber-600 font-extrabold uppercase">

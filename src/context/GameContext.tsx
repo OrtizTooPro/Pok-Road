@@ -22,9 +22,12 @@ import {
   calculateMaxExpForLevel, 
   calculatePokemonStats, 
   getPokemonMoves,
-  normalizePokemonReward 
+  normalizePokemonReward,
+  evolvePokemonWithStone,
+  generateRandomIVs
 } from '../utils/pokemonEvolution';
 import { evaluateLeaderMatchup } from '../utils/typeChart';
+import { getItemById } from '../data/kantoItems';
 
 const SAVE_KEY = 'POKEROAD_SAVEGAME_V1';
 
@@ -77,12 +80,20 @@ interface GameContextType {
   deleteSavedGame: () => void;
   selectOption: (option: OptionChoice) => void;
   setTeamLeader: (memberId: string) => void;
+  reorderTeam: (newTeam: PokemonMember[]) => void;
+  depositToPC: (memberId: string) => void;
+  withdrawFromPC: (pcMemberId: string) => void;
+  swapTeamWithPC: (teamMemberId: string, pcMemberId: string) => void;
+  reorderPCBox: (newPCBox: PokemonMember[]) => void;
+  releasePokemonFromPC: (pcMemberId: string) => void;
   closeOutcomeModal: () => void;
   resetGame: () => void;
   openModal: (modal: GameState['activeModal']) => void;
   closeModal: () => void;
   setActiveTab: (tab: NavigationTab) => void;
   toggleSound: () => void;
+  buyItem: (itemId: string, quantity: number) => void;
+  useItem: (itemId: string, pokemonId?: string) => boolean;
   currentEvent: GameEvent | null;
   calculateLegacyTier: (score: number) => CareerLegacyTier;
   getEarnedBadges: () => Badge[];
@@ -91,11 +102,11 @@ interface GameContextType {
 }
 
 const initialStats: TrainerStats = {
-  skill: 55,
-  reputation: 15,
-  bond: 80,
-  stamina: 90,
-  money: 3000
+  skill: 25,
+  reputation: 10,
+  bond: 35,
+  stamina: 75,
+  money: 1000
 };
 
 const initialState: GameState = {
@@ -112,6 +123,7 @@ const initialState: GameState = {
     daysSpent: 1,
     titlesWon: [],
     team: [],
+    pcBox: [],
     legendaryScore: 0,
     unlockedAchievements: []
   },
@@ -124,12 +136,15 @@ const initialState: GameState = {
   lastOutcome: null,
   activeModal: 'none',
   activeTab: 'summary_badges',
+  inventory: { 'potion': 2, 'poke-ball': 3 },
   soundEnabled: true
 };
 
 function loadSavedGame(): GameState {
   const saved = getSavedGameFromStorage();
   if (saved) {
+    if (!saved.inventory) saved.inventory = { 'potion': 2, 'poke-ball': 3 };
+    if (!saved.career.pcBox) saved.career.pcBox = [];
     // Keep saved progress, but start on menu so player can choose to continue or start a new adventure
     return {
       ...saved,
@@ -146,12 +161,20 @@ type GameAction =
   | { type: 'DELETE_SAVED_GAME' }
   | { type: 'SELECT_OPTION'; payload: { option: OptionChoice } }
   | { type: 'SET_TEAM_LEADER'; payload: { memberId: string } }
+  | { type: 'REORDER_TEAM'; payload: { newTeam: PokemonMember[] } }
+  | { type: 'DEPOSIT_TO_PC'; payload: { memberId: string } }
+  | { type: 'WITHDRAW_FROM_PC'; payload: { pcMemberId: string } }
+  | { type: 'SWAP_TEAM_WITH_PC'; payload: { teamMemberId: string; pcMemberId: string } }
+  | { type: 'REORDER_PC_BOX'; payload: { newPCBox: PokemonMember[] } }
+  | { type: 'RELEASE_PC_POKEMON'; payload: { pcMemberId: string } }
   | { type: 'CLOSE_OUTCOME_MODAL' }
   | { type: 'RESET_GAME' }
   | { type: 'OPEN_MODAL'; payload: GameState['activeModal'] }
   | { type: 'CLOSE_MODAL' }
   | { type: 'SET_ACTIVE_TAB'; payload: NavigationTab }
-  | { type: 'TOGGLE_SOUND' };
+  | { type: 'TOGGLE_SOUND' }
+  | { type: 'BUY_ITEM'; payload: { itemId: string; quantity: number } }
+  | { type: 'USE_ITEM'; payload: { itemId: string; pokemonId?: string } };
 
 function calculateLegacyTier(score: number): CareerLegacyTier {
   if (score >= 90) return '¡LEYENDA DEL SALÓN DE LA FAMA!';
@@ -179,7 +202,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       // Specialization adjustments
       if (spec === 'Combate') {
         newStats.skill += 10;
-        initialVictories = 2;
       } else if (spec === 'Captura') {
         newStats.stamina += 10;
         newStats.bond += 5;
@@ -198,11 +220,13 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
       const initialLvl = starterChoice.initialPokemon.level || 5;
       const initialStg = starterChoice.initialPokemon.stage || 1;
+      const starterIVs = starterChoice.initialPokemon.ivs || generateRandomIVs();
       const initialMon: PokemonMember = {
         ...starterChoice.initialPokemon,
+        ivs: starterIVs,
         exp: 0,
         maxExp: calculateMaxExpForLevel(initialLvl),
-        stats: calculatePokemonStats(initialLvl, initialStg),
+        stats: calculatePokemonStats(initialLvl, initialStg, starterChoice.initialPokemon.species, starterIVs),
         moves: getPokemonMoves(starterChoice.initialPokemon.species, initialLvl, starterChoice.initialPokemon.type)
       };
       const initialTeam: PokemonMember[] = [initialMon];
@@ -272,7 +296,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       }
 
       let newTeam = [...state.career.team];
+      let newPCBox = [...(state.career.pcBox || [])];
       let pokemonAwarded: PokemonMember | undefined = undefined;
+      let wasSentToPC = false;
       let evolvedName: string | undefined = undefined;
 
       // Type matchup evaluation based on Team Leader (Slot #1)
@@ -287,21 +313,24 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
         const normalizedReward = normalizePokemonReward(option.addPokemon, teamAvgLvl);
         const kantoMatch = findPokemonByName(normalizedReward.species || normalizedReward.name);
+        const monIVs = normalizedReward.ivs || generateRandomIVs();
 
         const newMon: PokemonMember = {
           ...normalizedReward,
           id: `mon-${Date.now()}-${Math.random()}`,
+          ivs: monIVs,
           exp: normalizedReward.exp || 0,
           maxExp: calculateMaxExpForLevel(normalizedReward.level),
-          stats: calculatePokemonStats(normalizedReward.level, normalizedReward.stage || 1),
+          stats: calculatePokemonStats(normalizedReward.level, normalizedReward.stage || 1, normalizedReward.species, monIVs),
           moves: getPokemonMoves(normalizedReward.species, normalizedReward.level, normalizedReward.type),
           spriteUrl: normalizedReward.spriteUrl || (kantoMatch ? kantoMatch.sprite : undefined)
         };
         if (newTeam.length < 6) {
           newTeam.push(newMon);
         } else {
-          // Replace last non-starter mon if team full
-          newTeam[newTeam.length - 1] = newMon;
+          // Team is full (6) -> Send directly to PC Box!
+          newPCBox.push(newMon);
+          wasSentToPC = true;
         }
         pokemonAwarded = newMon;
       }
@@ -317,13 +346,16 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             const nextStageObj = starterData.evolutionStages.find(e => e.stage === currentStage + 1);
             if (nextStageObj) {
               const kantoEvolveMatch = findPokemonByName(nextStageObj.species);
+              const starterIVs = starterMon.ivs || generateRandomIVs();
               newTeam[starterIndex] = {
                 ...starterMon,
+                ivs: starterIVs,
                 name: nextStageObj.name,
                 species: nextStageObj.species,
                 type: nextStageObj.type,
                 stage: nextStageObj.stage,
                 level: nextStageObj.level,
+                stats: calculatePokemonStats(nextStageObj.level, nextStageObj.stage, nextStageObj.species, starterIVs),
                 spriteUrl: kantoEvolveMatch ? kantoEvolveMatch.sprite : starterMon.spriteUrl
               };
               evolvedName = nextStageObj.name;
@@ -462,6 +494,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           pokemonCaught: caughtCount,
           daysSpent: newDaysSpent,
           team: newTeam,
+          pcBox: newPCBox,
           legendaryScore: newLegendaryScore,
           unlockedAchievements: allUnlocked
         },
@@ -474,6 +507,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           statChanges: statChangesList,
           badgeAwarded: awardedBadge,
           pokemonAwarded: pokemonAwarded,
+          sentToPC: wasSentToPC,
           evolvedPokemon: evolvedName,
           newAchievements: newlyUnlocked.length > 0 ? newlyUnlocked : undefined,
           chainedEventUnlockedTitle: unlockedChainedTitle,
@@ -502,6 +536,105 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         career: {
           ...state.career,
           team: updatedTeam
+        }
+      };
+    }
+
+    case 'REORDER_TEAM': {
+      return {
+        ...state,
+        career: {
+          ...state.career,
+          team: action.payload.newTeam
+        }
+      };
+    }
+
+    case 'DEPOSIT_TO_PC': {
+      const { memberId } = action.payload;
+      const currentTeam = [...state.career.team];
+      if (currentTeam.length <= 1) return state; // Keep at least 1
+      const targetMon = currentTeam.find(m => m.id === memberId);
+      if (!targetMon) return state;
+
+      const newTeam = currentTeam.filter(m => m.id !== memberId);
+      const newPCBox = [...(state.career.pcBox || []), targetMon];
+
+      return {
+        ...state,
+        career: {
+          ...state.career,
+          team: newTeam,
+          pcBox: newPCBox
+        }
+      };
+    }
+
+    case 'WITHDRAW_FROM_PC': {
+      const { pcMemberId } = action.payload;
+      const currentTeam = [...state.career.team];
+      if (currentTeam.length >= 6) return state; // Team full
+      const currentPC = [...(state.career.pcBox || [])];
+      const targetMon = currentPC.find(m => m.id === pcMemberId);
+      if (!targetMon) return state;
+
+      const newPCBox = currentPC.filter(m => m.id !== pcMemberId);
+      const newTeam = [...currentTeam, targetMon];
+
+      return {
+        ...state,
+        career: {
+          ...state.career,
+          team: newTeam,
+          pcBox: newPCBox
+        }
+      };
+    }
+
+    case 'SWAP_TEAM_WITH_PC': {
+      const { teamMemberId, pcMemberId } = action.payload;
+      const currentTeam = [...state.career.team];
+      const currentPC = [...(state.career.pcBox || [])];
+      const teamIdx = currentTeam.findIndex(m => m.id === teamMemberId);
+      const pcIdx = currentPC.findIndex(m => m.id === pcMemberId);
+      if (teamIdx === -1 || pcIdx === -1) return state;
+
+      const teamMon = currentTeam[teamIdx];
+      const pcMon = currentPC[pcIdx];
+
+      currentTeam[teamIdx] = pcMon;
+      currentPC[pcIdx] = teamMon;
+
+      return {
+        ...state,
+        career: {
+          ...state.career,
+          team: currentTeam,
+          pcBox: currentPC
+        }
+      };
+    }
+
+    case 'REORDER_PC_BOX': {
+      return {
+        ...state,
+        career: {
+          ...state.career,
+          pcBox: action.payload.newPCBox
+        }
+      };
+    }
+
+    case 'RELEASE_PC_POKEMON': {
+      const { pcMemberId } = action.payload;
+      const currentPC = [...(state.career.pcBox || [])];
+      const newPCBox = currentPC.filter(m => m.id !== pcMemberId);
+
+      return {
+        ...state,
+        career: {
+          ...state.career,
+          pcBox: newPCBox
         }
       };
     }
@@ -589,6 +722,75 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         soundEnabled: !state.soundEnabled
       };
 
+    case 'BUY_ITEM': {
+      const { itemId, quantity } = action.payload;
+      const item = getItemById(itemId);
+      if (!item) return state;
+
+      const totalCost = item.price * quantity;
+      if (state.stats.money < totalCost) return state;
+
+      const currentInv = state.inventory || {};
+      const currentQty = currentInv[itemId] || 0;
+
+      return {
+        ...state,
+        stats: {
+          ...state.stats,
+          money: state.stats.money - totalCost
+        },
+        inventory: {
+          ...currentInv,
+          [itemId]: currentQty + quantity
+        }
+      };
+    }
+
+    case 'USE_ITEM': {
+      const { itemId, pokemonId } = action.payload;
+      const item = getItemById(itemId);
+      const currentInv = state.inventory || {};
+      const currentQty = currentInv[itemId] || 0;
+      if (!item || currentQty <= 0) return state;
+
+      let newStats = { ...state.stats };
+      let newTeam = [...state.career.team];
+
+      if (item.category === 'STONE') {
+        if (newTeam.length > 0) {
+          const targetIndex = pokemonId
+            ? newTeam.findIndex(m => m.id === pokemonId)
+            : newTeam.findIndex(m => item.eligibleSpecies?.includes(m.species || m.name));
+
+          if (targetIndex !== -1) {
+            newTeam[targetIndex] = evolvePokemonWithStone(newTeam[targetIndex], itemId);
+          }
+        }
+      } else if (item.effectType === 'RESTORE_STAMINA' || item.effectType === 'HEAL_FULL') {
+        const val = item.effectType === 'HEAL_FULL' ? 100 : item.effectValue;
+        newStats.stamina = Math.min(100, newStats.stamina + val);
+      } else if (item.effectType === 'STAT_BOOST' && item.statTarget) {
+        newStats[item.statTarget] = Math.min(100, (newStats[item.statTarget] || 0) + item.effectValue);
+      } else if (item.effectType === 'TEAM_BOND') {
+        newStats.bond = Math.min(100, newStats.bond + item.effectValue);
+      } else if (item.effectType === 'CAPTURE_BONUS') {
+        newStats.skill = Math.min(100, newStats.skill + Math.round(item.effectValue / 3));
+      }
+
+      return {
+        ...state,
+        stats: newStats,
+        inventory: {
+          ...currentInv,
+          [itemId]: Math.max(0, currentQty - 1)
+        },
+        career: {
+          ...state.career,
+          team: newTeam
+        }
+      };
+    }
+
     default:
       return state;
   }
@@ -652,6 +854,36 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'SET_TEAM_LEADER', payload: { memberId } });
   };
 
+  const reorderTeam = (newTeam: PokemonMember[]) => {
+    if (state.soundEnabled) soundFx.playClick();
+    dispatch({ type: 'REORDER_TEAM', payload: { newTeam } });
+  };
+
+  const depositToPC = (memberId: string) => {
+    if (state.soundEnabled) soundFx.playClick();
+    dispatch({ type: 'DEPOSIT_TO_PC', payload: { memberId } });
+  };
+
+  const withdrawFromPC = (pcMemberId: string) => {
+    if (state.soundEnabled) soundFx.playStatUp();
+    dispatch({ type: 'WITHDRAW_FROM_PC', payload: { pcMemberId } });
+  };
+
+  const swapTeamWithPC = (teamMemberId: string, pcMemberId: string) => {
+    if (state.soundEnabled) soundFx.playStatUp();
+    dispatch({ type: 'SWAP_TEAM_WITH_PC', payload: { teamMemberId, pcMemberId } });
+  };
+
+  const reorderPCBox = (newPCBox: PokemonMember[]) => {
+    if (state.soundEnabled) soundFx.playClick();
+    dispatch({ type: 'REORDER_PC_BOX', payload: { newPCBox } });
+  };
+
+  const releasePokemonFromPC = (pcMemberId: string) => {
+    if (state.soundEnabled) soundFx.playClick();
+    dispatch({ type: 'RELEASE_PC_POKEMON', payload: { pcMemberId } });
+  };
+
   const closeOutcomeModal = () => {
     if (state.soundEnabled) soundFx.playClick();
     dispatch({ type: 'CLOSE_OUTCOME_MODAL' });
@@ -681,6 +913,20 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'TOGGLE_SOUND' });
   };
 
+  const buyItem = (itemId: string, quantity: number) => {
+    if (state.soundEnabled) soundFx.playStatUp();
+    dispatch({ type: 'BUY_ITEM', payload: { itemId, quantity } });
+  };
+
+  const useItem = (itemId: string, pokemonId?: string): boolean => {
+    const qty = (state.inventory || {})[itemId] || 0;
+    if (qty <= 0) return false;
+
+    if (state.soundEnabled) soundFx.playStatUp();
+    dispatch({ type: 'USE_ITEM', payload: { itemId, pokemonId } });
+    return true;
+  };
+
   const activeEventsList = state.activeEvents && state.activeEvents.length > 0
     ? state.activeEvents
     : GAME_EVENTS.filter(e => !e.isChainedOnly);
@@ -706,12 +952,20 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteSavedGame,
         selectOption,
         setTeamLeader,
+        reorderTeam,
+        depositToPC,
+        withdrawFromPC,
+        swapTeamWithPC,
+        reorderPCBox,
+        releasePokemonFromPC,
         closeOutcomeModal,
         resetGame,
         openModal,
         closeModal,
         setActiveTab,
         toggleSound,
+        buyItem,
+        useItem,
         currentEvent,
         calculateLegacyTier,
         getEarnedBadges,

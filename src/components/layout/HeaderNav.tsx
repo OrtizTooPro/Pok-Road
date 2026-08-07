@@ -1,10 +1,17 @@
 import React from 'react';
 import { useGame } from '../../context/GameContext';
-import { Volume2, VolumeX, Award, Sword, BookOpen, UserCheck, Home } from 'lucide-react';
+import { Volume2, VolumeX, Award, Sword, BookOpen, UserCheck, Home, ShoppingCart } from 'lucide-react';
 import { NavigationTab } from '../../types';
+import { checkShopAvailability } from '../../data/kantoItems';
 
 export const HeaderNav: React.FC = () => {
-  const { state, returnToMenu, setActiveTab, toggleSound } = useGame();
+  const { state, returnToMenu, setActiveTab, toggleSound, openModal, currentEvent } = useGame();
+
+  const shopInfo = checkShopAvailability(
+    currentEvent?.location,
+    currentEvent?.title,
+    currentEvent?.description
+  );
 
   const navItems: { id: NavigationTab; label: string; icon: React.ReactNode }[] = [
     { id: 'summary_badges', label: 'Resumen y Medallas', icon: <UserCheck className="w-3.5 h-3.5" /> },
@@ -57,6 +64,26 @@ export const HeaderNav: React.FC = () => {
 
         {/* Right: Action Controls */}
         <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0 z-10">
+          {state.isGameStarted && (
+            <button
+              onClick={() => openModal('shop')}
+              title={shopInfo.isAvailable ? `Tienda abierta: ${shopInfo.shopName}` : 'Mochila y Pokétienda'}
+              className={`px-2 sm:px-2.5 py-1 text-xs font-bold rounded-md border-2 border-gray-900 transition-all flex items-center space-x-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] cursor-pointer shrink-0 relative ${
+                shopInfo.isAvailable
+                  ? 'bg-emerald-400 hover:bg-emerald-300 text-gray-950 font-black animate-pulse'
+                  : 'bg-white hover:bg-yellow-300 text-gray-900'
+              }`}
+            >
+              <ShoppingCart className="w-3.5 h-3.5" />
+              <span className="uppercase text-[10px] sm:text-[11px] font-black hidden xs:inline">
+                {shopInfo.isAvailable ? 'Tienda' : 'Mochila'}
+              </span>
+              {shopInfo.isAvailable && (
+                <span className="w-2 h-2 rounded-full bg-emerald-900 absolute -top-1 -right-1 border border-white animate-ping"></span>
+              )}
+            </button>
+          )}
+
           <button
             onClick={toggleSound}
             title={state.soundEnabled ? 'Silenciar audio' : 'Activar audio'}

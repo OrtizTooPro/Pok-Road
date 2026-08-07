@@ -49,14 +49,24 @@ export const OutcomeModal: React.FC = () => {
 
             {/* Badge Unlock Alert */}
             {badgeAwarded && (
-              <div className="p-3 rounded-md bg-amber-50 border-2 border-amber-600 flex items-center space-x-3 shadow-sm">
-                <div className="w-10 h-10 rounded bg-amber-400 border-2 border-gray-900 text-gray-900 flex items-center justify-center text-xl shrink-0">
-                  <Trophy className="w-6 h-6 text-gray-900" />
+              <div className="p-3 rounded-md bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-200 border-2 border-amber-600 flex items-center space-x-3 shadow-md">
+                <div className="w-12 h-12 rounded-md bg-amber-400 border-2 border-gray-900 text-gray-900 flex items-center justify-center shrink-0 p-1 shadow-inner relative overflow-hidden">
+                  <div className="absolute inset-0 bg-white/40 animate-pulse pointer-events-none"></div>
+                  {badgeAwarded.spriteUrl ? (
+                    <img
+                      src={badgeAwarded.spriteUrl}
+                      alt={badgeAwarded.name}
+                      className="w-9 h-9 object-contain filter drop-shadow [image-rendering:pixelated]"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <Trophy className="w-6 h-6 text-gray-900" />
+                  )}
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-black text-amber-900">¡NUEVA MEDALLA OBTENIDA!</span>
-                  <h4 className="font-extrabold text-xs text-gray-900">{badgeAwarded.name} ({badgeAwarded.type})</h4>
-                  <p className="text-[11px] text-gray-600 font-bold">{badgeAwarded.gymLeader} • {badgeAwarded.city}</p>
+                  <span className="text-[10px] uppercase font-black text-amber-950 block">¡NUEVA MEDALLA OFICIAL OBTENIDA!</span>
+                  <h4 className="font-black text-sm text-amber-950">{badgeAwarded.name} ({badgeAwarded.type})</h4>
+                  <p className="text-[11px] text-amber-900 font-bold">{badgeAwarded.gymLeader} • {badgeAwarded.city}</p>
                 </div>
               </div>
             )}
@@ -75,7 +85,11 @@ export const OutcomeModal: React.FC = () => {
             )}
 
             {pokemonAwarded && (
-              <div className="p-3 rounded-md bg-emerald-50 border-2 border-emerald-600 flex items-center space-x-3 shadow-sm">
+              <div className={`p-3 rounded-md border-2 flex items-center space-x-3 shadow-sm ${
+                state.lastOutcome.sentToPC 
+                  ? 'bg-blue-50 border-blue-600' 
+                  : 'bg-emerald-50 border-emerald-600'
+              }`}>
                 <div className="w-10 h-10 rounded bg-white border-2 border-gray-900 flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
                   {(() => {
                     const sprite = pokemonAwarded.spriteUrl || findPokemonByName(pokemonAwarded.species || pokemonAwarded.name)?.sprite;
@@ -87,13 +101,20 @@ export const OutcomeModal: React.FC = () => {
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      <span className="text-xs font-black text-emerald-900">{pokemonAwarded.name.slice(0, 3)}</span>
+                      <span className="text-xs font-black text-gray-900">{pokemonAwarded.name.slice(0, 3)}</span>
                     );
                   })()}
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-black text-emerald-900">¡NUEVO POKÉMON EN EQUIPO!</span>
+                  <span className={`text-[10px] uppercase font-black ${state.lastOutcome.sentToPC ? 'text-blue-900' : 'text-emerald-900'}`}>
+                    {state.lastOutcome.sentToPC ? '💻 ¡ENVIADO AL SISTEMA PC!' : '¡NUEVO POKÉMON EN EQUIPO!'}
+                  </span>
                   <h4 className="font-extrabold text-xs text-gray-900">{pokemonAwarded.name} ({pokemonAwarded.type})</h4>
+                  {state.lastOutcome.sentToPC && (
+                    <p className="text-[10px] text-blue-800 font-bold mt-0.5">
+                      Tu equipo de 6 estaba lleno. Fue guardado en el PC y puedes equiparlo cuando quieras.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
