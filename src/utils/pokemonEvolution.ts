@@ -174,11 +174,11 @@ export function calculatePokemonStats(
   ivs?: PokemonIVs
 ): PokemonStats {
   const lvl = Math.max(1, level);
-  const stg = Math.max(1, stage);
   const iv = ivs || { hp: 16, attack: 16, defense: 16, speed: 16, special: 16 };
 
-  if (species) {
-    const kantoMatch = findPokemonByName(species);
+  const targetSpecies = species ? species.trim() : undefined;
+  if (targetSpecies) {
+    const kantoMatch = findPokemonByName(targetSpecies);
     if (kantoMatch && kantoMatch.baseStats) {
       const b = kantoMatch.baseStats;
       return {
@@ -191,12 +191,14 @@ export function calculatePokemonStats(
     }
   }
 
+  // Fallback default for unknown species: Base 35 across all stats (Rattata-tier baseline)
+  const defaultB = { hp: 35, attack: 35, defense: 35, speed: 35, special: 35 };
   return {
-    hp: Math.floor(22 + lvl * 2.9 + stg * 12 + (iv.hp * lvl) / 100),
-    attack: Math.floor(12 + lvl * 2.1 + stg * 9 + (iv.attack * lvl) / 100),
-    defense: Math.floor(10 + lvl * 2.0 + stg * 8 + (iv.defense * lvl) / 100),
-    speed: Math.floor(11 + lvl * 2.1 + stg * 8 + (iv.speed * lvl) / 100),
-    special: Math.floor(14 + lvl * 2.3 + stg * 9 + (iv.special * lvl) / 100),
+    hp: Math.floor(((defaultB.hp * 2 + iv.hp) * lvl) / 100 + lvl + 10),
+    attack: Math.floor(((defaultB.attack * 2 + iv.attack) * lvl) / 100 + 5),
+    defense: Math.floor(((defaultB.defense * 2 + iv.defense) * lvl) / 100 + 5),
+    speed: Math.floor(((defaultB.speed * 2 + iv.speed) * lvl) / 100 + 5),
+    special: Math.floor(((defaultB.special * 2 + iv.special) * lvl) / 100 + 5),
   };
 }
 

@@ -7,6 +7,7 @@ import {
   CareerLegacyTier,
   Badge,
   PokemonMember,
+  PokemonIVs,
   TrainerStats,
   NavigationTab
 } from '../types';
@@ -220,10 +221,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
       const initialLvl = starterChoice.initialPokemon.level || 5;
       const initialStg = starterChoice.initialPokemon.stage || 1;
-      const starterIVs = starterChoice.initialPokemon.ivs || generateRandomIVs();
+      const starterIVs: PokemonIVs = starterChoice.initialPokemon.ivs || { hp: 15, attack: 15, defense: 15, speed: 15, special: 15 };
       const initialMon: PokemonMember = {
         ...starterChoice.initialPokemon,
         ivs: starterIVs,
+        isStarter: true,
         exp: 0,
         maxExp: calculateMaxExpForLevel(initialLvl),
         stats: calculatePokemonStats(initialLvl, initialStg, starterChoice.initialPokemon.species, starterIVs),

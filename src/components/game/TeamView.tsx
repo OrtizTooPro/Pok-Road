@@ -786,8 +786,13 @@ export const TeamView: React.FC = () => {
               <div className="space-y-1.5">
                 <h4 className="text-xs font-black uppercase text-gray-700">ESTADÍSTICAS Y EVALUADOR DE POTENCIAL (IVs)</h4>
                 {(() => {
-                  const st = selectedPokemon.pokemon.stats || calculatePokemonStats(selectedPokemon.pokemon.level || 5, selectedPokemon.pokemon.stage || 1, selectedPokemon.pokemon.species, selectedPokemon.pokemon.ivs);
+                  const speciesName = selectedPokemon.pokemon.species || selectedPokemon.pokemon.name;
+                  const kantoMatch = findPokemonByName(speciesName);
+                  const st = selectedPokemon.pokemon.stats || calculatePokemonStats(selectedPokemon.pokemon.level || 5, selectedPokemon.pokemon.stage || 1, speciesName, selectedPokemon.pokemon.ivs);
                   const judge = getPokemonPotentialJudgement(selectedPokemon.pokemon.ivs);
+                  const b = kantoMatch?.baseStats;
+                  const bst = b ? b.hp + b.attack + b.defense + b.speed + b.special : null;
+
                   return (
                     <div className="space-y-2">
                       {/* Potential Judgement (Evaluador de Potencial) */}
@@ -804,26 +809,48 @@ export const TeamView: React.FC = () => {
                         </p>
                       </div>
 
+                      {b && (
+                        <div className="flex items-center justify-between text-[10px] font-black bg-slate-100 text-slate-800 px-2.5 py-1 rounded border border-slate-300">
+                          <span>ESPECIE {speciesName.toUpperCase()} (STATS BASE OFICIALES)</span>
+                          <span className="bg-slate-900 text-yellow-300 px-1.5 py-0.2 rounded font-mono">BST: {bst}</span>
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-2 gap-2 text-xs font-extrabold">
                         <div className="p-2 bg-emerald-50 border border-emerald-300 rounded flex justify-between items-center text-emerald-900">
                           <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5 text-emerald-600" /> PS:</span>
-                          <span className="font-mono text-sm">{st.hp}</span>
+                          <div className="text-right">
+                            <span className="font-mono text-sm block">{st.hp}</span>
+                            {b && <span className="text-[9px] text-emerald-700 font-semibold block">Base: {b.hp}</span>}
+                          </div>
                         </div>
                         <div className="p-2 bg-rose-50 border border-rose-300 rounded flex justify-between items-center text-rose-900">
                           <span className="flex items-center gap-1"><Flame className="w-3.5 h-3.5 text-rose-600" /> Ataque:</span>
-                          <span className="font-mono text-sm">{st.attack}</span>
+                          <div className="text-right">
+                            <span className="font-mono text-sm block">{st.attack}</span>
+                            {b && <span className="text-[9px] text-rose-700 font-semibold block">Base: {b.attack}</span>}
+                          </div>
                         </div>
                         <div className="p-2 bg-blue-50 border border-blue-300 rounded flex justify-between items-center text-blue-900">
                           <span className="flex items-center gap-1"><Shield className="w-3.5 h-3.5 text-blue-600" /> Defensa:</span>
-                          <span className="font-mono text-sm">{st.defense}</span>
+                          <div className="text-right">
+                            <span className="font-mono text-sm block">{st.defense}</span>
+                            {b && <span className="text-[9px] text-blue-700 font-semibold block">Base: {b.defense}</span>}
+                          </div>
                         </div>
                         <div className="p-2 bg-amber-50 border border-amber-300 rounded flex justify-between items-center text-amber-900">
                           <span className="flex items-center gap-1"><Gauge className="w-3.5 h-3.5 text-amber-600" /> Velocidad:</span>
-                          <span className="font-mono text-sm">{st.speed}</span>
+                          <div className="text-right">
+                            <span className="font-mono text-sm block">{st.speed}</span>
+                            {b && <span className="text-[9px] text-amber-700 font-semibold block">Base: {b.speed}</span>}
+                          </div>
                         </div>
                         <div className="p-2 bg-purple-50 border border-purple-300 rounded flex justify-between items-center text-purple-900 col-span-2">
                           <span className="flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-purple-600" /> Especial:</span>
-                          <span className="font-mono text-sm">{st.special}</span>
+                          <div className="text-right">
+                            <span className="font-mono text-sm block">{st.special}</span>
+                            {b && <span className="text-[9px] text-purple-700 font-semibold block">Base: {b.special}</span>}
+                          </div>
                         </div>
                       </div>
                     </div>

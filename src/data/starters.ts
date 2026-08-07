@@ -1,4 +1,4 @@
-import { PokemonMember } from '../types';
+import { PokemonMember, PokemonIVs } from '../types';
 import { getPokemonSprite } from './kantoPokedex';
 
 export interface StarterChoice {
@@ -13,6 +13,8 @@ export interface StarterChoice {
   initialPokemon: PokemonMember;
   evolutionStages: { stage: number; species: string; name: string; type: string; level: number }[];
 }
+
+export const STARTER_IVS: PokemonIVs = { hp: 15, attack: 15, defense: 15, speed: 15, special: 15 };
 
 export const STARTER_OPTIONS: StarterChoice[] = [
   {
@@ -31,6 +33,7 @@ export const STARTER_OPTIONS: StarterChoice[] = [
       level: 5,
       stage: 1,
       isStarter: true,
+      ivs: STARTER_IVS,
       spriteUrl: getPokemonSprite(4),
       iconEmoji: '🔥'
     },
@@ -56,6 +59,7 @@ export const STARTER_OPTIONS: StarterChoice[] = [
       level: 5,
       stage: 1,
       isStarter: true,
+      ivs: STARTER_IVS,
       spriteUrl: getPokemonSprite(7),
       iconEmoji: '💧'
     },
@@ -81,6 +85,7 @@ export const STARTER_OPTIONS: StarterChoice[] = [
       level: 5,
       stage: 1,
       isStarter: true,
+      ivs: STARTER_IVS,
       spriteUrl: getPokemonSprite(1),
       iconEmoji: '🍃'
     },
@@ -106,6 +111,7 @@ export const STARTER_OPTIONS: StarterChoice[] = [
       level: 5,
       stage: 1,
       isStarter: true,
+      ivs: STARTER_IVS,
       spriteUrl: getPokemonSprite(25),
       iconEmoji: '⚡'
     },

@@ -175,8 +175,29 @@ export const KANTO_POKEDEX: KantoPokemon[] = [
 ];
 
 export const findPokemonByName = (name: string): KantoPokemon | undefined => {
+  if (!name) return undefined;
   const cleanName = name.toLowerCase().trim();
-  return KANTO_POKEDEX.find(p => p.name.toLowerCase() === cleanName || p.name.toLowerCase().includes(cleanName));
+
+  // 1. Priority: Exact match (case-insensitive)
+  const exact = KANTO_POKEDEX.find(p => p.name.toLowerCase() === cleanName);
+  if (exact) return exact;
+
+  // 2. Priority: Normalized alphanumeric match (e.g., "Mr Mime" -> "Mr. Mime", "Farfetchd" -> "Farfetch'd")
+  const normalizedSearch = cleanName.replace(/[^a-z0-9]/g, '');
+  if (normalizedSearch) {
+    const normalizedMatch = KANTO_POKEDEX.find(p => p.name.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedSearch);
+    if (normalizedMatch) return normalizedMatch;
+  }
+
+  // 3. Priority: Prefix match (e.g., "Dratini Safari" -> "Dratini")
+  const prefixMatch = KANTO_POKEDEX.find(p => {
+    const pName = p.name.toLowerCase();
+    return cleanName.startsWith(pName) || pName.startsWith(cleanName);
+  });
+  if (prefixMatch) return prefixMatch;
+
+  // 4. Fallback: Substring match
+  return KANTO_POKEDEX.find(p => p.name.toLowerCase().includes(cleanName));
 };
 
 export const findPokemonById = (id: number): KantoPokemon | undefined => {

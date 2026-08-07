@@ -402,6 +402,56 @@ export const KantoPokedexView: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Official Base Stats (Pokédex Kanto) */}
+                  <div className="bg-slate-50 border-2 border-gray-900 rounded-md p-3 space-y-2 shadow-xs">
+                    <div className="flex items-center justify-between border-b border-gray-300 pb-1.5">
+                      <span className="text-xs font-black uppercase text-gray-900 flex items-center gap-1.5">
+                        <Sword className="w-4 h-4 text-red-600" />
+                        ESTADÍSTICAS BASE OFICIALES (GEN 1)
+                      </span>
+                      <span className="text-[10px] font-black bg-gray-900 text-yellow-300 px-2 py-0.5 rounded">
+                        BST: {selectedPokemon.baseStats.hp + selectedPokemon.baseStats.attack + selectedPokemon.baseStats.defense + selectedPokemon.baseStats.speed + selectedPokemon.baseStats.special}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5 text-xs font-bold">
+                      <div className="flex items-center gap-2">
+                        <span className="w-22 text-[10px] uppercase text-emerald-900 shrink-0 font-black">PS: {selectedPokemon.baseStats.hp}</span>
+                        <div className="flex-1 bg-gray-200 h-2.5 rounded-full overflow-hidden border border-gray-300">
+                          <div className="bg-emerald-500 h-full rounded-full transition-all" style={{ width: `${Math.min(100, (selectedPokemon.baseStats.hp / 160) * 100)}%` }}></div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="w-22 text-[10px] uppercase text-rose-900 shrink-0 font-black">Ataque: {selectedPokemon.baseStats.attack}</span>
+                        <div className="flex-1 bg-gray-200 h-2.5 rounded-full overflow-hidden border border-gray-300">
+                          <div className="bg-rose-500 h-full rounded-full transition-all" style={{ width: `${Math.min(100, (selectedPokemon.baseStats.attack / 160) * 100)}%` }}></div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="w-22 text-[10px] uppercase text-blue-900 shrink-0 font-black">Defensa: {selectedPokemon.baseStats.defense}</span>
+                        <div className="flex-1 bg-gray-200 h-2.5 rounded-full overflow-hidden border border-gray-300">
+                          <div className="bg-blue-500 h-full rounded-full transition-all" style={{ width: `${Math.min(100, (selectedPokemon.baseStats.defense / 160) * 100)}%` }}></div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="w-22 text-[10px] uppercase text-amber-900 shrink-0 font-black">Velocidad: {selectedPokemon.baseStats.speed}</span>
+                        <div className="flex-1 bg-gray-200 h-2.5 rounded-full overflow-hidden border border-gray-300">
+                          <div className="bg-amber-500 h-full rounded-full transition-all" style={{ width: `${Math.min(100, (selectedPokemon.baseStats.speed / 160) * 100)}%` }}></div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="w-22 text-[10px] uppercase text-purple-900 shrink-0 font-black">Especial: {selectedPokemon.baseStats.special}</span>
+                        <div className="flex-1 bg-gray-200 h-2.5 rounded-full overflow-hidden border border-gray-300">
+                          <div className="bg-purple-500 h-full rounded-full transition-all" style={{ width: `${Math.min(100, (selectedPokemon.baseStats.special / 160) * 100)}%` }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Evolutionary Chain Section */}
                   {(() => {
                     const evoFamily = getEvolutionFamily(selectedPokemon.id);
