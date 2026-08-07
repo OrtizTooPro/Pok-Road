@@ -5,6 +5,7 @@ import { REGIONAL_BADGES } from '../../data/badges';
 import { Badge } from '../../types';
 import { ACHIEVEMENTS } from '../../data/achievements';
 import { Award, CheckCircle2, Sparkles, Lock, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { BadgeIcon } from './BadgeIcon';
 
 export const BadgeCase: React.FC = () => {
   const { state } = useGame();
@@ -86,18 +87,13 @@ export const BadgeCase: React.FC = () => {
                   {isEarned && (
                     <div className="absolute inset-0 bg-white/30 animate-pulse pointer-events-none"></div>
                   )}
-                  {badge.spriteUrl ? (
-                    <img 
-                      src={badge.spriteUrl} 
-                      alt={badge.name} 
-                      className={`w-7 h-7 object-contain [image-rendering:pixelated] transition-all filter drop-shadow ${
-                        isEarned ? 'brightness-110' : 'grayscale opacity-40'
-                      }`}
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <span className="relative z-10 font-black text-xs">{idx + 1}</span>
-                  )}
+                  <BadgeIcon
+                    badgeId={badge.id}
+                    badgeName={badge.name}
+                    spriteUrl={badge.spriteUrl}
+                    earned={isEarned}
+                    size="md"
+                  />
                 </motion.div>
 
                 <span className={`text-[10px] sm:text-[9px] font-black leading-tight truncate max-w-full uppercase ${isEarned ? 'text-amber-950' : 'text-gray-400'}`}>
@@ -178,16 +174,13 @@ export const BadgeCase: React.FC = () => {
                 <div className="flex justify-center my-1">
                   <div className="w-20 h-20 bg-gradient-to-b from-amber-200 to-yellow-400 border-3 border-gray-900 rounded-lg p-2 flex items-center justify-center shadow-lg relative">
                     <div className="absolute inset-0 bg-white/40 animate-pulse rounded-lg pointer-events-none"></div>
-                    {selectedBadge.spriteUrl ? (
-                      <img
-                        src={selectedBadge.spriteUrl}
-                        alt={selectedBadge.name}
-                        className="w-16 h-16 object-contain filter drop-shadow-md [image-rendering:pixelated]"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <Award className="w-12 h-12 text-gray-900" />
-                    )}
+                    <BadgeIcon
+                      badgeId={selectedBadge.id}
+                      badgeName={selectedBadge.name}
+                      spriteUrl={selectedBadge.spriteUrl}
+                      earned={true}
+                      size="xl"
+                    />
                   </div>
                 </div>
 

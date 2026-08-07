@@ -4,6 +4,7 @@ import { Trophy, Sparkles, CheckCircle2, ArrowRight, Zap, Crown, ShieldAlert, Sh
 import { motion, AnimatePresence } from 'motion/react';
 import { ACHIEVEMENTS } from '../../data/achievements';
 import { findPokemonByName } from '../../data/kantoPokedex';
+import { BadgeIcon } from './BadgeIcon';
 
 export const OutcomeModal: React.FC = () => {
   const { state, closeOutcomeModal } = useGame();
@@ -52,16 +53,13 @@ export const OutcomeModal: React.FC = () => {
               <div className="p-3 rounded-md bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-200 border-2 border-amber-600 flex items-center space-x-3 shadow-md">
                 <div className="w-12 h-12 rounded-md bg-amber-400 border-2 border-gray-900 text-gray-900 flex items-center justify-center shrink-0 p-1 shadow-inner relative overflow-hidden">
                   <div className="absolute inset-0 bg-white/40 animate-pulse pointer-events-none"></div>
-                  {badgeAwarded.spriteUrl ? (
-                    <img
-                      src={badgeAwarded.spriteUrl}
-                      alt={badgeAwarded.name}
-                      className="w-9 h-9 object-contain filter drop-shadow [image-rendering:pixelated]"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <Trophy className="w-6 h-6 text-gray-900" />
-                  )}
+                  <BadgeIcon
+                    badgeId={badgeAwarded.id}
+                    badgeName={badgeAwarded.name}
+                    spriteUrl={badgeAwarded.spriteUrl}
+                    earned={true}
+                    size="lg"
+                  />
                 </div>
                 <div>
                   <span className="text-[10px] uppercase font-black text-amber-950 block">¡NUEVA MEDALLA OFICIAL OBTENIDA!</span>

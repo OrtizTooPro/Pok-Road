@@ -6,6 +6,7 @@ import { User, Award, ArrowRight, ArrowLeft, Sparkles, Sword, Play, RotateCcw, T
 import { motion, AnimatePresence } from 'motion/react';
 import { findPokemonByName } from '../../data/kantoPokedex';
 import { TRAINER_AVATARS, getAvatarById } from '../../data/avatars';
+import { getTypeColorStyle } from '../../utils/typeColors';
 
 export const CharacterSetup: React.FC = () => {
   const { startGame, continueSavedGame, deleteSavedGame, hasSavedGame, savedGameData } = useGame();
@@ -530,9 +531,14 @@ export const CharacterSetup: React.FC = () => {
                                     )}
                                   </div>
                                   <div className="flex flex-col items-end gap-1">
-                                    <span className="text-[10px] uppercase px-2 py-0.5 rounded font-black bg-gray-900 text-white">
-                                      {starter.type}
-                                    </span>
+                                    {(() => {
+                                      const typeStyle = getTypeColorStyle(starter.type);
+                                      return (
+                                        <span className={`text-[10px] uppercase px-2.5 py-0.5 rounded-md font-black border shadow-xs ${typeStyle.solidBg}`}>
+                                          {starter.type}
+                                        </span>
+                                      );
+                                    })()}
                                     {isSelected && (
                                       <span className="text-[9px] bg-emerald-600 text-white font-black px-2 py-0.5 rounded flex items-center gap-1 uppercase tracking-wider">
                                         <Check className="w-3 h-3" /> SELECCIONADO
@@ -582,9 +588,13 @@ export const CharacterSetup: React.FC = () => {
                                       NVL. 5
                                     </span>
                                   </h4>
-                                  <p className="text-[10px] text-amber-800 font-bold">
-                                    Categoría: {activeStarter.category} • Tipo: {activeStarter.type}
-                                  </p>
+                                  <div className="text-[10px] text-amber-900 font-bold flex items-center gap-1.5 mt-0.5">
+                                    <span>Categoría: {activeStarter.category}</span>
+                                    <span>•</span>
+                                    <span className={`px-2 py-0.5 rounded-md font-black text-[9px] uppercase border ${getTypeColorStyle(activeStarter.type).solidBg}`}>
+                                      {activeStarter.type}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
                               <span className="text-[10px] bg-emerald-100 text-emerald-900 font-black px-2 py-1 rounded border border-emerald-600 uppercase">

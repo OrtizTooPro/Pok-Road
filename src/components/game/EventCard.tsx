@@ -7,6 +7,7 @@ import { normalizePokemonReward } from '../../utils/pokemonEvolution';
 import { findPokemonByName } from '../../data/kantoPokedex';
 import { checkShopAvailability } from '../../data/kantoItems';
 import { getBadgeById } from '../../data/badges';
+import { BadgeIcon } from './BadgeIcon';
 
 interface RewardExplanation {
   title: string;
@@ -15,6 +16,7 @@ interface RewardExplanation {
   description: string;
   impactText: string;
   badgeSpriteUrl?: string;
+  badgeId?: string;
 }
 
 export const EventCard: React.FC = () => {
@@ -344,7 +346,8 @@ export const EventCard: React.FC = () => {
                           categoryName: 'RECONOCIMIENTO DE LIGA',
                           description: badgeObj ? `${badgeObj.description} (${badgeObj.gymLeader} • ${badgeObj.city})` : 'Premio acreditativo concedido por vencer en un Gimnasio o Torneo Oficial regional.',
                           impactText: 'Otorga +5,000 Puntos a tu Puntuación Final y es requisito fundamental para desafiar al Alto Mando.',
-                          badgeSpriteUrl: badgeObj?.spriteUrl
+                          badgeSpriteUrl: badgeObj?.spriteUrl,
+                          badgeId: badgeObj?.id || option.awardBadgeId
                         })}
                         onPointerUp={(e) => handlePointerUpReward(e)}
                         onClick={(e) => handleClickReward(e, {
@@ -353,16 +356,19 @@ export const EventCard: React.FC = () => {
                           categoryName: 'RECONOCIMIENTO DE LIGA',
                           description: badgeObj ? `${badgeObj.description} (${badgeObj.gymLeader} • ${badgeObj.city})` : 'Premio acreditativo concedido por vencer en un Gimnasio o Torneo Oficial regional.',
                           impactText: 'Otorga +5,000 Puntos a tu Puntuación Final y es requisito fundamental para desafiar al Alto Mando.',
-                          badgeSpriteUrl: badgeObj?.spriteUrl
+                          badgeSpriteUrl: badgeObj?.spriteUrl,
+                          badgeId: badgeObj?.id || option.awardBadgeId
                         })}
                         className="px-2 py-0.5 rounded bg-amber-200 border border-gray-800 text-gray-900 flex items-center gap-1.5 font-extrabold shadow-xs cursor-help hover:bg-amber-300 transition-colors"
                         title="Mantén pulsado o haz clic para ver explicación"
                       >
-                        {badgeObj?.spriteUrl ? (
-                          <img src={badgeObj.spriteUrl} alt={badgeNameStr} className="w-4 h-4 object-contain [image-rendering:pixelated] filter drop-shadow" referrerPolicy="no-referrer" />
-                        ) : (
-                          <Trophy className="w-3 h-3 text-amber-700" />
-                        )}
+                        <BadgeIcon
+                          badgeId={badgeObj?.id || option.awardBadgeId}
+                          badgeName={badgeNameStr}
+                          spriteUrl={badgeObj?.spriteUrl}
+                          earned={true}
+                          size="xs"
+                        />
                         <span>{badgeNameStr}</span>
                         <Info className="w-2.5 h-2.5 text-amber-800 opacity-70" />
                       </span>
@@ -566,9 +572,15 @@ export const EventCard: React.FC = () => {
           {/* Header */}
           <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-3.5 flex items-center justify-between border-b-2 border-gray-900 shrink-0">
             <div className="flex items-center space-x-2.5">
-              {activeExplanation.badgeSpriteUrl ? (
+              {activeExplanation.badgeSpriteUrl || activeExplanation.badgeId ? (
                 <div className="w-10 h-10 bg-amber-300 rounded border-2 border-gray-900 flex items-center justify-center shrink-0 shadow">
-                  <img src={activeExplanation.badgeSpriteUrl} alt={activeExplanation.title} className="w-8 h-8 object-contain [image-rendering:pixelated]" referrerPolicy="no-referrer" />
+                  <BadgeIcon
+                    badgeId={activeExplanation.badgeId}
+                    badgeName={activeExplanation.title}
+                    spriteUrl={activeExplanation.badgeSpriteUrl}
+                    earned={true}
+                    size="md"
+                  />
                 </div>
               ) : (
                 <span className="text-2xl p-1 bg-white/20 rounded border border-white/30">{activeExplanation.icon}</span>

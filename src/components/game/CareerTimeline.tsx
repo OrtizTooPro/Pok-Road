@@ -2,6 +2,7 @@ import React from 'react';
 import { useGame } from '../../context/GameContext';
 import { History } from 'lucide-react';
 import { getBadgeByName, getBadgeById } from '../../data/badges';
+import { BadgeIcon } from './BadgeIcon';
 
 export const CareerTimeline: React.FC = () => {
   const { state } = useGame();
@@ -53,9 +54,13 @@ export const CareerTimeline: React.FC = () => {
                     const badgeObj = getBadgeByName(log.badgeEarned) || getBadgeById(log.badgeEarned);
                     return (
                       <span className="px-1.5 py-0.5 rounded bg-amber-200 border border-amber-800 text-amber-950 font-extrabold flex items-center gap-1">
-                        {badgeObj?.spriteUrl && (
-                          <img src={badgeObj.spriteUrl} alt={log.badgeEarned} className="w-3.5 h-3.5 object-contain [image-rendering:pixelated]" referrerPolicy="no-referrer" />
-                        )}
+                        <BadgeIcon
+                          badgeId={badgeObj?.id || log.badgeEarned}
+                          badgeName={log.badgeEarned}
+                          spriteUrl={badgeObj?.spriteUrl}
+                          earned={true}
+                          size="xs"
+                        />
                         <span>MEDALLA: {log.badgeEarned.toUpperCase()}</span>
                       </span>
                     );

@@ -3,6 +3,7 @@ import { useGame } from '../../context/GameContext';
 import { Trophy, Swords, Calendar, Award, Sparkles, Compass, ShieldCheck, Heart, Zap, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { REGIONAL_BADGES } from '../../data/badges';
 import { motion, AnimatePresence } from 'motion/react';
+import { BadgeIcon } from './BadgeIcon';
 
 export const SummaryDashboard: React.FC = () => {
   const { state } = useGame();
@@ -164,11 +165,13 @@ export const SummaryDashboard: React.FC = () => {
                 const isEarned = career.badgesWon.includes(b.id);
                 return (
                   <div key={b.id} title={b.name} className={`w-5 h-5 rounded border flex items-center justify-center p-0.5 shrink-0 ${isEarned ? 'bg-amber-200 border-amber-600' : 'bg-gray-200 border-gray-300 opacity-30 filter grayscale'}`}>
-                    {b.spriteUrl ? (
-                      <img src={b.spriteUrl} alt={b.name} className="w-4 h-4 object-contain [image-rendering:pixelated]" referrerPolicy="no-referrer" />
-                    ) : (
-                      <span className="text-[8px] font-black">{b.name[0]}</span>
-                    )}
+                    <BadgeIcon
+                      badgeId={b.id}
+                      badgeName={b.name}
+                      spriteUrl={b.spriteUrl}
+                      earned={isEarned}
+                      size="xs"
+                    />
                   </div>
                 );
               })}

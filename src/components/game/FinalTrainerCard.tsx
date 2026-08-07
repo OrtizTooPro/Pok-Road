@@ -8,6 +8,7 @@ import { getAvatarById } from '../../data/avatars';
 import { ACHIEVEMENTS } from '../../data/achievements';
 import { findPokemonByName } from '../../data/kantoPokedex';
 import { calculateTotalCareerScore } from '../../utils/scoreCalculator';
+import { BadgeIcon } from './BadgeIcon';
 
 export const FinalTrainerCard: React.FC = () => {
   const { state, calculateLegacyTier, resetGame, returnToMenu, getEarnedBadges } = useGame();
@@ -342,16 +343,13 @@ export const FinalTrainerCard: React.FC = () => {
                   }`}
                 >
                   <div className="w-8 h-8 flex items-center justify-center my-0.5">
-                    {badge.spriteUrl ? (
-                      <img
-                        src={badge.spriteUrl}
-                        alt={badge.name}
-                        className="w-7 h-7 object-contain [image-rendering:pixelated] filter drop-shadow"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <span className="text-xs font-black">{idx + 1}</span>
-                    )}
+                    <BadgeIcon
+                      badgeId={badge.id}
+                      badgeName={badge.name}
+                      spriteUrl={badge.spriteUrl}
+                      earned={isEarned}
+                      size="sm"
+                    />
                   </div>
                   <span className="text-[8px] font-extrabold truncate max-w-full uppercase">{badge.name.replace('Medalla ', '')}</span>
                 </div>
