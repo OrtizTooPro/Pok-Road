@@ -1,7 +1,5 @@
 import { GameEvent, TrainerSpecialization, PokemonMember } from '../types';
 import { GAME_EVENTS, CHAINED_EVENTS, BRANCHING_EVENTS, EXPANDED_REGIONAL_EVENTS, MASTER_PROTOCOL_EVENTS } from '../data/eventsData';
-import { KANTO_POKEDEX } from '../data/kantoPokedex';
-import { EVOLUTION_RULES } from './pokemonEvolution';
 import { getRouteForAge, getRandomEncounterForRoute } from '../data/kantoRoutes';
 
 /**
@@ -84,6 +82,8 @@ function createProceduralWildEvent(idSuffix: string, age: number): GameEvent {
     spriteUrl: chosenPkm.sprite
   };
 
+  const reqSkill = Math.min(80, Math.floor(age * 2.2 + 5));
+
   return {
     id: `proc-wild-${idSuffix}-${Date.now()}-${randomInt(100, 999)}`,
     title: `Encuentro Salvaje en ${route.name}: ${chosenPkm.name} ${weather.icon}`,
@@ -95,8 +95,9 @@ function createProceduralWildEvent(idSuffix: string, age: number): GameEvent {
       {
         id: `opt-proc-${idSuffix}-a`,
         text: `Intentar capturar a ${chosenPkm.name} en ${route.name}.`,
+        statRequirements: { skill: reqSkill },
         outcomeText: `¡Lanzas la Pokéball con precisión! ${chosenPkm.name} de nivel ${level} se une a tu equipo.`,
-        statEffects: { skill: randomInt(6, 12), bond: randomInt(4, 10), legendaryScoreDelta: 3 },
+        statEffects: { skill: randomInt(2, 5), bond: randomInt(2, 4), stamina: -4 },
         addPokemon: pkMember,
         isVictory: true
       },
@@ -104,7 +105,7 @@ function createProceduralWildEvent(idSuffix: string, age: number): GameEvent {
         id: `opt-proc-${idSuffix}-b`,
         text: `Estudiar los patrones de combate de ${chosenPkm.name} en esta ruta y continuar.`,
         outcomeText: `Analizas su comportamiento salvaje en ${route.name} y consigues valiosos apuntes para tu guía de viaje.`,
-        statEffects: { skill: randomInt(10, 18), money: randomInt(400, 1200) }
+        statEffects: { skill: randomInt(3, 6), money: randomInt(200, 500) }
       }
     ]
   };
@@ -115,7 +116,8 @@ function createProceduralWildEvent(idSuffix: string, age: number): GameEvent {
  */
 function createProceduralRivalEvent(idSuffix: string, age: number): GameEvent {
   const rivalName = randomPick(RIVAL_NAMES);
-  const prizeMoney = age * 150 + randomInt(100, 500);
+  const prizeMoney = age * 100 + randomInt(100, 300);
+  const reqSkill = Math.min(88, Math.floor(age * 2.8 + 10));
 
   return {
     id: `proc-rival-${idSuffix}-${Date.now()}-${randomInt(100, 999)}`,
@@ -128,15 +130,17 @@ function createProceduralRivalEvent(idSuffix: string, age: number): GameEvent {
       {
         id: `opt-rival-${idSuffix}-a`,
         text: 'Aceptar el duelo frontalmente con tu mejor formación.',
+        statRequirements: { skill: reqSkill },
         outcomeText: '¡Combate intenso! Tras un intercambio de movimientos deslumbrante, logras la victoria sobre tu rival.',
-        statEffects: { skill: randomInt(4, 7), reputation: randomInt(3, 6), money: prizeMoney, stamina: -6, legendaryScoreDelta: 3 },
+        statEffects: { skill: randomInt(3, 6), reputation: randomInt(2, 4), money: prizeMoney, stamina: -12 },
         isVictory: true
       },
       {
         id: `opt-rival-${idSuffix}-b`,
         text: 'Proponer una batalla de exhibición enfocada en el trabajo en equipo.',
+        statRequirements: { bond: Math.min(80, Math.floor(age * 2.2 + 5)) },
         outcomeText: 'Tu rival queda maravillado por la armonía y sincronización de tu equipo Pokémon.',
-        statEffects: { bond: randomInt(5, 9), reputation: randomInt(3, 6) }
+        statEffects: { bond: randomInt(3, 6), reputation: randomInt(2, 4), stamina: -8 }
       }
     ]
   };
@@ -167,7 +171,7 @@ function createProceduralSpecEvent(idSuffix: string, age: number, spec: TrainerS
         id: `opt-spec-${idSuffix}-a`,
         text: `Aplicar tus conocimientos avanzados de ${spec} al máximo.`,
         outcomeText: `Destacas bruscamente entre los participantes. Los mentores reconocen tu destreza superior.`,
-        statEffects: { skill: 7, reputation: 6, money: 800, legendaryScoreDelta: 3 },
+        statEffects: { skill: 4, reputation: 3, money: 400 },
         specializationRequirement: spec,
         specializationBonusText: `Especialidad ${spec}`
       },
@@ -175,7 +179,7 @@ function createProceduralSpecEvent(idSuffix: string, age: number, spec: TrainerS
         id: `opt-spec-${idSuffix}-b`,
         text: `Compartir tus técnicas con jóvenes aspirantes.`,
         outcomeText: `Te ganas el respeto y cariño de la comunidad de entrenadores de Kanto.`,
-        statEffects: { bond: 8, reputation: 6 }
+        statEffects: { bond: 5, reputation: 3, stamina: 5 }
       }
     ]
   };

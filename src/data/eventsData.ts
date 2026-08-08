@@ -13,14 +13,14 @@ export const GAME_EVENTS: GameEvent[] = [
         id: 'opt-10-a',
         text: 'Aceptar el combate directo confiando en el instinto de tu Pokémon.',
         outcomeText: 'Sorprendes a tu rival con un ataque enérgico. Tu inicial demuestra un coraje brutal.',
-        statEffects: { skill: 8, bond: 10, legendaryScoreDelta: 1 },
+        statEffects: { skill: 8, bond: 10 },
         isVictory: true
       },
       {
         id: 'opt-10-b',
         text: 'Analizar sus movimientos y luchar a la defensiva con estrategia.',
         outcomeText: 'Aprovechas su impaciencia y contraatacas justo a tiempo. ¡Una victoria limpia y táctica!',
-        statEffects: { skill: 12, stamina: -5, legendaryScoreDelta: 1 },
+        statEffects: { skill: 12, stamina: -5 },
         triggerNextEventId: 'event-chain-rival-rematch',
         chainedNotice: '⚡ Desbloqueará en el futuro: "Consecuencia: La Venganza de tu Rival en el Puente Pepita"',
         isVictory: true
@@ -29,7 +29,7 @@ export const GAME_EVENTS: GameEvent[] = [
         id: 'opt-10-c',
         text: 'Ofrecer compartir consejos de entrenamiento antes de luchar.',
         outcomeText: 'Tu rival respeta tu deportividad. La batalla es intensa pero ambos aprenden mucho.',
-        statEffects: { bond: 15, reputation: 10, legendaryScoreDelta: 1 }
+        statEffects: { bond: 15, reputation: 10 }
       }
     ]
   },
@@ -87,9 +87,10 @@ export const GAME_EVENTS: GameEvent[] = [
     options: [
       {
         id: 'opt-11-a',
-        text: 'Atacar con todo el poder de ventaja elemental de tu equipo.',
+        text: 'Atacar con todo el poder de ventaja elemental de tu equipo (Planta/Agua).',
+        statRequirements: { skill: 25 },
         outcomeText: 'Tu estrategia rinde frutos. Rompes la defensa de Onix y consigues tu primera medalla oficial.',
-        statEffects: { skill: 10, reputation: 8, money: 500, legendaryScoreDelta: 1 },
+        statEffects: { skill: 10, reputation: 8, money: 500 },
         awardBadgeId: 'badge-roca',
         evolveStarter: true,
         isVictory: true
@@ -97,16 +98,17 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-11-b',
         text: 'Agotar la resistencia del rival con cambios rápidos de Pokémon.',
+        statRequirements: { stamina: 40 },
         outcomeText: 'Mano de obra exhaustiva. Sufriste desgaste físico pero la Medalla Roca ya brilla en tu estuche.',
-        statEffects: { skill: 7, stamina: -10, money: 500, legendaryScoreDelta: 1 },
+        statEffects: { skill: 7, stamina: -12, money: 500 },
         awardBadgeId: 'badge-roca',
         isVictory: true
       },
       {
         id: 'opt-11-c',
-        text: 'Probar un ataque arriesgado de fuerza bruta.',
-        outcomeText: 'El golpe falla por poco y su Onix responde con Venganza. Una derrota amarga que te enseña humildad.',
-        statEffects: { skill: 5, bond: -5, stamina: -15, legendaryScoreDelta: 1 },
+        text: 'Probar un ataque arriesgado de fuerza bruta sin preparación.',
+        outcomeText: 'El golpe falla por poco y el Onix de Brock responde con Venganza. Sufres una amarga derrota.',
+        statEffects: { skill: -2, bond: -5, stamina: -15 },
         isDefeat: true
       }
     ]
@@ -174,8 +176,9 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-12-a',
         text: 'Confrontarlos de inmediato y expulsarlos de la cueva.',
+        statRequirements: { skill: 30 },
         outcomeText: 'Derrotas a los villanos en un combate doble. Los Pokémon locales te lo agradecen con lealtad.',
-        statEffects: { reputation: 12, bond: 10, money: 800, legendaryScoreDelta: 1 },
+        statEffects: { reputation: 12, bond: 10, money: 800 },
         triggerNextEventId: 'event-chain-rocket-revenge',
         chainedNotice: '⚡ Desbloqueará en el futuro: "Consecuencia: Emboscada Nocturna del Team Sombra"',
         addPokemon: {
@@ -185,19 +188,21 @@ export const GAME_EVENTS: GameEvent[] = [
           level: 22,
           stage: 2,
           iconEmoji: '🦇'
-        }
+        },
+        isVictory: true
       },
       {
         id: 'opt-12-b',
         text: 'Informar a los Oficiales de Policía y colaborar en la emboscada.',
         outcomeText: 'Tu prudencia ayuda a desmantelar toda la célula criminal local. Recibes una recompensa oficial.',
-        statEffects: { reputation: 15, money: 2000, legendaryScoreDelta: 1 }
+        statEffects: { reputation: 15, money: 2000 },
+        isVictory: true
       },
       {
         id: 'opt-12-c',
         text: 'Ignorar el conflicto y aprovechar para recolectar minerales valiosos.',
         outcomeText: 'Consigues objetos valiosos para vender, pero tu conciencia queda inquietada.',
-        statEffects: { money: 3500, bond: -10, reputation: -8, legendaryScoreDelta: 1 },
+        statEffects: { money: 3500, bond: -10, reputation: -8 },
         triggerNextEventId: 'event-chain-casino-heist',
         chainedNotice: '⚡ Desbloqueará en el futuro: "Consecuencia: Torneo Clandestino del Casino Subterráneo"'
       }
@@ -258,8 +263,9 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-13-a',
         text: 'Lanzar una Ultra Ball con máxima precisión visual.',
+        statRequirements: { skill: 35 },
         outcomeText: '¡Pipi-pip... Clic! ¡Capturaste un deslumbrante Pidgey Variocolor! La gente en el pueblo no lo puede creer.',
-        statEffects: { reputation: 18, bond: 10, money: -300, legendaryScoreDelta: 1 },
+        statEffects: { reputation: 18, bond: 10, money: -300 },
         addPokemon: {
           name: 'Pidgeotto Shiny',
           species: 'Pidgeotto',
@@ -274,7 +280,7 @@ export const GAME_EVENTS: GameEvent[] = [
         id: 'opt-13-b',
         text: 'Luchar con serenidad para reducir su salud antes de lanzar la ball.',
         outcomeText: 'El combate es impecable y la captura es limpia. Tu equipo aprende a tener compostura.',
-        statEffects: { skill: 8, bond: 12, legendaryScoreDelta: 1 },
+        statEffects: { skill: 8, bond: 12 },
         addPokemon: {
           name: 'Pidgeotto Shiny',
           species: 'Pidgeotto',
@@ -289,7 +295,7 @@ export const GAME_EVENTS: GameEvent[] = [
         id: 'opt-13-c',
         text: 'Tomar una foto para tus redes y dejarlo volar en libertad.',
         outcomeText: 'La foto se vuelve viral entre la comunidad de entrenadores. Te ganas el respeto de los ecologistas.',
-        statEffects: { reputation: 25, bond: 15, legendaryScoreDelta: 1 }
+        statEffects: { reputation: 25, bond: 15 }
       }
     ]
   },
@@ -304,6 +310,7 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-r24-a',
         text: 'Bloquear la Teletransportación de Abra y capturarlo hábilmente.',
+        statRequirements: { skill: 32 },
         outcomeText: 'Anticipas su parpadeo psíquico con una Veloz Ball. ¡Capturas a un valiosísimo Abra!',
         statEffects: { skill: 12, reputation: 10 },
         addPokemon: {
@@ -355,25 +362,27 @@ export const GAME_EVENTS: GameEvent[] = [
     options: [
       {
         id: 'opt-14-a',
-        text: 'Aprovechar la velocidad de tus Pokémon en las plataformas finas.',
+        text: 'Aprovechar la velocidad de tus Pokémon en las plataformas finas (Planta/Eléctrico).',
+        statRequirements: { skill: 35 },
         outcomeText: 'Esquivas los Rayo Burbuja y asestas el golpe final. ¡Ganas la Medalla Cascada!',
-        statEffects: { skill: 7, reputation: 6, money: 600, legendaryScoreDelta: 1 },
+        statEffects: { skill: 8, reputation: 8, money: 600 },
         awardBadgeId: 'badge-cascada',
         isVictory: true
       },
       {
         id: 'opt-14-b',
         text: 'Forzar un combate acuático sumergiéndote con tu equipo.',
+        statRequirements: { stamina: 45 },
         outcomeText: 'Resistencia extrema. Tu determinación impresiona a Misty y te otorga la victoria.',
-        statEffects: { skill: 5, stamina: -8, bond: 6, money: 600, legendaryScoreDelta: 1 },
+        statEffects: { skill: 5, stamina: -12, bond: 8, money: 600 },
         awardBadgeId: 'badge-cascada',
         isVictory: true
       },
       {
         id: 'opt-14-c',
-        text: 'Intentar paralizar a Starmie sin preparación previa.',
-        outcomeText: 'Starmie usa Recuperación y te supera con Hidroariete. ¡Derrota desafortunada!',
-        statEffects: { skill: -2, stamina: -8, legendaryScoreDelta: 1 },
+        text: 'Atacar de forma impulsiva a Starmie sin evaluar sus movimientos.',
+        outcomeText: 'Starmie usa Recuperación y te supera con Hidroariete. ¡Derrota aplastante en la piscina!',
+        statEffects: { skill: -3, stamina: -10 },
         isDefeat: true
       }
     ]
@@ -389,8 +398,9 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-15-a',
         text: 'Someter a tu equipo a un riguroso régimen de entrenamiento intensivo.',
+        statRequirements: { stamina: 35 },
         outcomeText: '¡Tu Pokémon inicial alcanza un estado de forma increíble y evoluciona a su forma final!',
-        statEffects: { skill: 15, stamina: -15, bond: 10, legendaryScoreDelta: 1 },
+        statEffects: { skill: 15, stamina: -15, bond: 10 },
         triggerNextEventId: 'event-chain-fossil-revival',
         chainedNotice: '⚡ Desbloqueará en el futuro: "Consecuencia: Resurrección del Fósil Prehistórico"',
         evolveStarter: true
@@ -399,13 +409,13 @@ export const GAME_EVENTS: GameEvent[] = [
         id: 'opt-15-b',
         text: 'Acampar bajo las estrellas y fortalecer la amistad profunda del equipo.',
         outcomeText: 'El vínculo afectivo se dispara al máximo. Todos tus Pokémon confían ciegamente en ti.',
-        statEffects: { bond: 25, stamina: 15, legendaryScoreDelta: 1 }
+        statEffects: { bond: 25, stamina: 15 }
       },
       {
         id: 'opt-15-c',
         text: 'Investigar en la biblioteca de la Guardería métodos de crianza.',
         outcomeText: 'Descubres secretos valiosos para aumentar el rendimiento de tu equipo.',
-        statEffects: { skill: 12, reputation: 10, legendaryScoreDelta: 1 }
+        statEffects: { skill: 12, reputation: 10 }
       }
     ]
   },
@@ -420,8 +430,9 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-r12-a',
         text: 'Pescar con Caña Buena y capturar un escurridizo Dratini.',
+        statRequirements: { skill: 45 },
         outcomeText: '¡Una luz mística emerge de las olas! Atrapas a un rarísimo Dratini en tu equipo.',
-        statEffects: { skill: 15, reputation: 15, legendaryScoreDelta: 8 },
+        statEffects: { skill: 15, reputation: 15 },
         addPokemon: {
           name: 'Dratini',
           species: 'Dratini',
@@ -434,8 +445,9 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-r12-b',
         text: 'Enfrentar la furia de las olas y capturar un feroz Gyarados.',
+        statRequirements: { stamina: 50 },
         outcomeText: 'Soportas sus potentes Hiperrayos e impones disciplina. ¡Un gigante colosal en tu bando!',
-        statEffects: { skill: 14, stamina: -8, legendaryScoreDelta: 6 },
+        statEffects: { skill: 14, stamina: -12 },
         addPokemon: {
           name: 'Gyarados',
           species: 'Gyarados',
@@ -463,18 +475,19 @@ export const GAME_EVENTS: GameEvent[] = [
     options: [
       {
         id: 'opt-16-a',
-        text: 'Bloquear la electricidad usando tierra o estrategias de aislamiento.',
+        text: 'Bloquear la electricidad usando tierra o aislamiento táctico.',
+        statRequirements: { skill: 42 },
         outcomeText: 'Anulas su Rayo y contraatacas con contundencia. ¡Medalla Trueno conseguida!',
-        statEffects: { skill: 8, reputation: 6, money: 800, legendaryScoreDelta: 1 },
+        statEffects: { skill: 10, reputation: 8, money: 800 },
         awardBadgeId: 'badge-trueno',
         isVictory: true
       },
       {
         id: 'opt-16-b',
         text: 'Aceptar un duelo de velocidad pura frente a frente.',
-        statRequirements: { skill: 35 },
+        statRequirements: { skill: 50 },
         outcomeText: 'Tu velocidad de reacción es asombrosa. Lt. Surge te saluda militarmente en reconocimiento.',
-        statEffects: { skill: 9, reputation: 7, money: 800, legendaryScoreDelta: 1 },
+        statEffects: { skill: 12, reputation: 10, money: 800 },
         triggerNextEventId: 'event-chain-zapdos-flight',
         chainedNotice: '⚡ Desbloqueará en el futuro: "Consecuencia: El Despertar de Zapdos en la Central"',
         awardBadgeId: 'badge-trueno',
@@ -482,9 +495,9 @@ export const GAME_EVENTS: GameEvent[] = [
       },
       {
         id: 'opt-16-c',
-        text: 'Dudar al dar las órdenes bajo el ruido de las descargas.',
-        outcomeText: 'Raichu aprovecha tu indecisión con Onda Voltio. Caes derrotado.',
-        statEffects: { skill: -2, stamina: -8, legendaryScoreDelta: 1 },
+        text: 'Dudar al dar las órdenes bajo el ruido atronador de las descargas.',
+        outcomeText: 'Raichu aprovecha tu indecisión con Onda Voltio. Caes derrotado ante las chispas.',
+        statEffects: { skill: -3, stamina: -12 },
         isDefeat: true
       }
     ]
@@ -500,22 +513,24 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-17-a',
         text: 'Dar un espectáculo deslumbrante con combinaciones vistosas.',
+        statRequirements: { reputation: 45 },
         outcomeText: '¡La multitud enloquece! Firmas un patrocinio multimillonario con la corporación.',
-        statEffects: { reputation: 20, money: 8000, legendaryScoreDelta: 1 },
+        statEffects: { reputation: 20, money: 6000 },
         isVictory: true
       },
       {
         id: 'opt-17-b',
         text: 'Competir con la máxima disciplina táctica sin adornos.',
+        statRequirements: { skill: 52 },
         outcomeText: 'Ganas el torneo limpiamente. Te respetan como un profesional serio.',
-        statEffects: { skill: 15, reputation: 15, money: 4000, legendaryScoreDelta: 1 },
+        statEffects: { skill: 15, reputation: 15, money: 4000 },
         isVictory: true
       },
       {
         id: 'opt-17-c',
         text: 'Rechazar las marcas corporativas para mantener la esencia pura del viaje.',
         outcomeText: 'Te conviertes en un héroe de culto entre los entrenadores tradicionales.',
-        statEffects: { bond: 20, reputation: 25, money: 1000, legendaryScoreDelta: 1 }
+        statEffects: { bond: 20, reputation: 25, money: 1000 }
       }
     ]
   },
@@ -530,8 +545,9 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-saf-a',
         text: 'Atraer con cebo sigiloso a un veloz Scyther y atraparlo.',
+        statRequirements: { skill: 50 },
         outcomeText: '¡Sus guadañas destellan antes de entrar a la Safari Ball! Un atacante temible para tu equipo.',
-        statEffects: { skill: 15, reputation: 12, legendaryScoreDelta: 5 },
+        statEffects: { skill: 15, reputation: 12 },
         addPokemon: {
           name: 'Scyther',
           species: 'Scyther',
@@ -544,6 +560,7 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-saf-b',
         text: 'Capturar un implacable Tauros que lidera la manada.',
+        statRequirements: { stamina: 50 },
         outcomeText: 'Demostración de fuerza brava. Tauros acepta tu liderazgo y se suma a la causa.',
         statEffects: { stamina: 12, skill: 10 },
         addPokemon: {
@@ -581,26 +598,27 @@ export const GAME_EVENTS: GameEvent[] = [
     options: [
       {
         id: 'opt-18-a',
-        text: 'Mantener la mente despejada y atacar con precisión de fuego/aire.',
+        text: 'Mantener la mente despejada y atacar con precisión de Fuego / Volador.',
+        statRequirements: { skill: 48 },
         outcomeText: 'Disipas las esporas aromáticas y consigues la hermosa Medalla Arcoíris.',
-        statEffects: { skill: 8, reputation: 7, money: 1000, legendaryScoreDelta: 1 },
+        statEffects: { skill: 10, reputation: 8, money: 1000 },
         awardBadgeId: 'badge-arcoiris',
         isVictory: true
       },
       {
         id: 'opt-18-b',
         text: 'Resistir el sueño a través del vínculo telepático con tu equipo.',
-        statRequirements: { bond: 45 },
+        statRequirements: { bond: 50 },
         outcomeText: 'Tu Pokémon se despierta justo a tiempo por tu voz. ¡Una victoria emotiva!',
-        statEffects: { bond: 9, skill: 7, money: 1000, legendaryScoreDelta: 1 },
+        statEffects: { bond: 12, skill: 8, money: 1000 },
         awardBadgeId: 'badge-arcoiris',
         isVictory: true
       },
       {
         id: 'opt-18-c',
-        text: 'Ceder al cansancio y ser dormido por Somnífero.',
-        outcomeText: 'Erika gana el combate sin despeinarse. Tendrás que intentar de nuevo.',
-        statEffects: { stamina: -10, legendaryScoreDelta: 1 },
+        text: 'Ceder al cansancio y ser dormido por Somnífero sin reaccionar.',
+        outcomeText: 'Erika gana el combate sin despeinarse. Caes derrotado bajo el aroma del invernadero.',
+        statEffects: { stamina: -12, skill: -2 },
         isDefeat: true
       }
     ]
@@ -616,8 +634,9 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-19-a',
         text: 'Aceptar su desafío de resistencia y capturarlo tras un duelo feroz.',
+        statRequirements: { skill: 55 },
         outcomeText: 'Resistes sus Golpes Cuerpo y logras capturarlo en una Ultra Ball. ¡Un gigante indestructible!',
-        statEffects: { skill: 9, bond: 8, legendaryScoreDelta: 1 },
+        statEffects: { skill: 10, bond: 10 },
         addPokemon: {
           name: 'Snorlax',
           species: 'Snorlax',
@@ -630,8 +649,9 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-19-b',
         text: 'Usar una estrategia de desgaste con problemas de estado.',
+        statRequirements: { stamina: 55 },
         outcomeText: 'Aprovechas su somnolencia para reducir sus defensas y capturarlo limpiamente.',
-        statEffects: { skill: 8, reputation: 6, legendaryScoreDelta: 1 },
+        statEffects: { skill: 10, reputation: 8 },
         addPokemon: {
           name: 'Snorlax',
           species: 'Snorlax',
@@ -645,7 +665,7 @@ export const GAME_EVENTS: GameEvent[] = [
         id: 'opt-19-c',
         text: 'Alimentarlo con bayas de alta calidad y ganarte su simpatía sin combatir.',
         outcomeText: 'Snorlax disfruta el festín, se despeja del camino y te regala Restos de comida.',
-        statEffects: { stamina: 15, bond: 12, legendaryScoreDelta: 1 }
+        statEffects: { stamina: 15, bond: 15 }
       }
     ]
   },
@@ -660,8 +680,9 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-cc-a',
         text: 'Someter a un poderoso Dragonair que custodia los cristales.',
-        outcomeText: 'Tras un combate místico de alto nivel, Dragonair se inclina ante ti y se une a tu equipo legendario.',
-        statEffects: { skill: 18, reputation: 18, legendaryScoreDelta: 10 },
+        statRequirements: { skill: 65 },
+        outcomeText: 'Tras un combate místico de alto nivel, Dragonair se inclina ante ti y se une a tu equipo.',
+        statEffects: { skill: 18, reputation: 18 },
         addPokemon: {
           name: 'Dragonair',
           species: 'Dragonair',
@@ -674,8 +695,9 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-cc-b',
         text: 'Forjar un pacto con un Lapras majestuoso que navega en las corrientes.',
-        outcomeText: 'Lapras te reconoce como Campeón y se convierte en la montura y baluarte de tu grupo.',
-        statEffects: { bond: 18, stamina: 15, legendaryScoreDelta: 8 },
+        statRequirements: { bond: 60 },
+        outcomeText: 'Lapras te reconoce como Maestro y se convierte en la montura y baluarte de tu grupo.',
+        statEffects: { bond: 18, stamina: 15 },
         addPokemon: {
           name: 'Lapras',
           species: 'Lapras',
@@ -689,7 +711,7 @@ export const GAME_EVENTS: GameEvent[] = [
         id: 'opt-cc-c',
         text: 'Absorber la energía del núcleo místico para perfeccionar tu mente.',
         outcomeText: 'Alcanzas un estado de concentración absoluta. Tu reputación como Maestro es incuestionable.',
-        statEffects: { skill: 20, reputation: 20, legendaryScoreDelta: 12 }
+        statEffects: { skill: 20, reputation: 20 }
       }
     ]
   },
@@ -703,26 +725,27 @@ export const GAME_EVENTS: GameEvent[] = [
     options: [
       {
         id: 'opt-20-a',
-        text: 'Romper sus predicciones con movimientos impredecibles y audaces.',
+        text: 'Romper sus predicciones con movimientos impredecibles y audaces (Bicho/Fantasma/Siniestro).',
+        statRequirements: { skill: 58 },
         outcomeText: 'Desorientas sus poderes Psíquicos con tácticas caóticas. ¡Obtienes la Medalla Pantano!',
-        statEffects: { skill: 14, reputation: 12, money: 2500, legendaryScoreDelta: 1 },
+        statEffects: { skill: 14, reputation: 12, money: 2500 },
         awardBadgeId: 'badge-pantano',
         isVictory: true
       },
       {
         id: 'opt-20-b',
-        text: 'Entrenar tu mente para bloquear su telepatía.',
-        statRequirements: { skill: 75 },
+        text: 'Entrenar tu mente para bloquear su telepatía directamente.',
+        statRequirements: { skill: 65 },
         outcomeText: 'Tu enfoque absoluto deja sin respuesta a su Alakazam. Sabrina admite su error de visión.',
-        statEffects: { skill: 18, reputation: 15, money: 2500, legendaryScoreDelta: 1 },
+        statEffects: { skill: 18, reputation: 15, money: 2500 },
         awardBadgeId: 'badge-pantano',
         isVictory: true
       },
       {
         id: 'opt-20-c',
-        text: 'Caer en las ilusiones de sus espejismos.',
-        outcomeText: 'Tu equipo se confunde a sí mismo. Sabrina gana sin esfuerzo.',
-        statEffects: { skill: -5, legendaryScoreDelta: 1 },
+        text: 'Caer sin resistencia en las ilusiones de sus espejismos psíquicos.',
+        outcomeText: 'Tu equipo se confunde a sí mismo. Sabrina gana la batalla sin despeinarse.',
+        statEffects: { skill: -4, stamina: -10 },
         isDefeat: true
       }
     ]
@@ -733,27 +756,29 @@ export const GAME_EVENTS: GameEvent[] = [
     category: 'RIVAL_MATCH',
     age: 21,
     location: 'Ruta 24',
-    description: 'Tu rival te espera con sus 5 medallas puestas en el abrigo. "He viajado por todo el mundo para superarte. ¡Demuéstrame si estás a mi altura!"',
+    description: 'Tu rival te espera con sus medallas puestas en el abrigo. "He viajado por todo el mundo para superarte. ¡Demuéstrame si estás a mi altura!"',
     options: [
       {
         id: 'opt-21-a',
         text: 'Poner a prueba todo lo aprendido en una batalla épica.',
+        statRequirements: { skill: 62 },
         outcomeText: 'Tras un intercambio feroz, tu equipo logra una victoria por la mínima. Ambos chocan los puños.',
-        statEffects: { skill: 15, reputation: 20, bond: 15, legendaryScoreDelta: 1 },
+        statEffects: { skill: 15, reputation: 20, bond: 15 },
         isVictory: true
       },
       {
         id: 'opt-21-b',
         text: 'Arriesgar con un Pokémon recién capturado para tomarlo por sorpresa.',
+        statRequirements: { skill: 68 },
         outcomeText: 'La jugada sale magistral. Tu rival se queda boquiabierto ante tu flexibilidad táctica.',
-        statEffects: { skill: 18, reputation: 22, money: 3000, legendaryScoreDelta: 1 },
+        statEffects: { skill: 18, reputation: 22, money: 3000 },
         isVictory: true
       },
       {
         id: 'opt-21-c',
-        text: 'Luchar con fatiga acumulada del viaje.',
-        outcomeText: 'Tu rival nota tu cansancio y aprovecha sus ataques. Sufres una derrota ajustada.',
-        statEffects: { stamina: -10, bond: -5, legendaryScoreDelta: 1 },
+        text: 'Luchar con fatiga acumulada sin evaluar tus fuerzas.',
+        outcomeText: 'Tu rival nota tu cansancio y aprovecha sus ataques. Sufres una dolorosa derrota.',
+        statEffects: { stamina: -15, bond: -5 },
         isDefeat: true
       }
     ]
@@ -768,25 +793,27 @@ export const GAME_EVENTS: GameEvent[] = [
     options: [
       {
         id: 'opt-22-a',
-        text: 'Responder "¡La pasión de un Entrenador!" y sofocar sus llamas.',
-        outcomeText: 'Tu Magmar o Arcanine no pueden contener tu contraataque. ¡Medalla Volcán conseguida!',
-        statEffects: { skill: 15, reputation: 12, money: 3000, legendaryScoreDelta: 1 },
+        text: 'Responder "¡La pasión de un Entrenador!" y sofocar sus llamas (Agua/Tierra).',
+        statRequirements: { skill: 68 },
+        outcomeText: 'Tu contraataque elemental apaga su fuego. ¡Medalla Volcán conseguida!',
+        statEffects: { skill: 15, reputation: 12, money: 3000 },
         awardBadgeId: 'badge-volcan',
         isVictory: true
       },
       {
         id: 'opt-22-b',
-        text: 'Mantener la calma térmica usando barreras de agua y tierra.',
+        text: 'Mantener la calma térmica usando barreras de agua y tierra con temple.',
+        statRequirements: { stamina: 60, skill: 65 },
         outcomeText: 'Un combate frío y calculador en medio del volcán. Victoria indiscutible.',
-        statEffects: { skill: 14, stamina: -10, money: 3000, legendaryScoreDelta: 1 },
+        statEffects: { skill: 14, stamina: -12, money: 3000 },
         awardBadgeId: 'badge-volcan',
         isVictory: true
       },
       {
         id: 'opt-22-c',
         text: 'Sufrir un golpe de calor por el entorno sofocante.',
-        outcomeText: 'El calor afecta el rendimiento de tu equipo. Tienes que retirarte temporalmente.',
-        statEffects: { stamina: -20, legendaryScoreDelta: 1 },
+        outcomeText: 'El calor afecta el rendimiento de tu equipo. Tienes que retirarte sufriendo una derrota.',
+        statEffects: { stamina: -20 },
         isDefeat: true
       }
     ]
@@ -802,22 +829,24 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-23-a',
         text: 'Competir en la Fábrica de la Batalla con rotación aleatoria.',
+        statRequirements: { skill: 72 },
         outcomeText: 'Demuestras una comprensión perfecta del metajuego. Te entregan el Símbolo del Conocimiento.',
-        statEffects: { skill: 20, reputation: 25, money: 10000, legendaryScoreDelta: 1 },
+        statEffects: { skill: 20, reputation: 25, money: 8000 },
         isVictory: true
       },
       {
         id: 'opt-23-b',
         text: 'Confiar únicamente en tus Pokémon más veteranos.',
+        statRequirements: { bond: 70 },
         outcomeText: 'El poder del vínculo veterano aplasta las estrategias complejas del enemigo.',
-        statEffects: { bond: 20, skill: 15, reputation: 20, legendaryScoreDelta: 1 },
+        statEffects: { bond: 20, skill: 15, reputation: 20 },
         isVictory: true
       },
       {
         id: 'opt-23-c',
         text: 'Usar el dinero del torneo para mejorar tu equipamiento de viaje.',
         outcomeText: 'Aprovechas las tiendas de lujo del Frente para abastecerte.',
-        statEffects: { money: 12000, stamina: 20, legendaryScoreDelta: 1 }
+        statEffects: { money: 10000, stamina: 20 }
       }
     ]
   },
@@ -831,9 +860,10 @@ export const GAME_EVENTS: GameEvent[] = [
     options: [
       {
         id: 'opt-24-a',
-        text: 'Desplegar una ofensiva combinada sin dar margen a sus Dragones.',
+        text: 'Desplegar una ofensiva combinada sin dar margen a sus Dragones (Hielo/Dragón).',
+        statRequirements: { skill: 75 },
         outcomeText: '¡Increíble! Logras abatir a Dragonite con un combo espectacular. ¡COMPLETAS LAS 8 MEDALLAS REGIONALES!',
-        statEffects: { skill: 20, reputation: 25, money: 5000, legendaryScoreDelta: 2 },
+        statEffects: { skill: 20, reputation: 25, money: 5000 },
         awardBadgeId: 'badge-dragon',
         isVictory: true
       },
@@ -842,7 +872,7 @@ export const GAME_EVENTS: GameEvent[] = [
         text: 'Soportar sus ataques de Hiperrayo y contraatacar en el momento de recarga.',
         statRequirements: { skill: 80 },
         outcomeText: 'Estrategia maestra. El público se pone en pie. ¡Consigues tu 8ª Medalla con honor!',
-        statEffects: { skill: 22, bond: 15, money: 5000, legendaryScoreDelta: 2 },
+        statEffects: { skill: 22, bond: 15, money: 5000 },
         awardBadgeId: 'badge-tierra',
         isVictory: true
       },
@@ -850,7 +880,7 @@ export const GAME_EVENTS: GameEvent[] = [
         id: 'opt-24-c',
         text: 'Perder el ritmo ante la potencia abrumadora del Hiperrayo.',
         outcomeText: 'Tus Pokémon son derrotados rápidamente. La octava medalla se te resiste.',
-        statEffects: { stamina: -15, skill: -3, legendaryScoreDelta: 1 },
+        statEffects: { stamina: -15, skill: -3 },
         isDefeat: true
       }
     ]
@@ -866,8 +896,9 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-25-a',
         text: 'Confrontar a los Ejecutivos Rocket en un duelo decisivo y liberar a las Aves.',
-        outcomeText: 'Derrotas a los villanos en un combate épico. El Ave Legendaria te reconoce como Guardián de Kanto y se une a tu equipo.',
-        statEffects: { skill: 15, reputation: 20, bond: 15, legendaryScoreDelta: 2 },
+        statRequirements: { skill: 78 },
+        outcomeText: 'Derrotas a los villanos en un combate épico. El Ave Legendaria te reconoce como Guardián de Kanto.',
+        statEffects: { skill: 15, reputation: 20, bond: 15 },
         addPokemon: {
           name: 'Zapdos',
           species: 'Zapdos',
@@ -876,20 +907,23 @@ export const GAME_EVENTS: GameEvent[] = [
           stage: 3,
           isLegendary: true,
           iconEmoji: '⚡'
-        }
+        },
+        isVictory: true
       },
       {
         id: 'opt-25-b',
         text: 'Formar equipo con el Campeón de la Liga para una operación conjunta.',
+        statRequirements: { reputation: 70 },
         outcomeText: 'Juntos frustran los planes del sindicato criminal. El Campeón te nombra héroe regional.',
-        statEffects: { skill: 20, reputation: 35, money: 10000, legendaryScoreDelta: 2 }
+        statEffects: { skill: 20, reputation: 35, money: 8000 },
+        isVictory: true
       },
       {
         id: 'opt-25-c',
         text: 'Aprovechar la distracción para capturar al Legendario con una Master Ball.',
-        statRequirements: { money: 10000 },
+        statRequirements: { money: 10000, skill: 75 },
         outcomeText: '¡Captura legendaria histórica! El mundo entero habla de tu hazaña.',
-        statEffects: { reputation: 40, skill: 15, legendaryScoreDelta: 2 },
+        statEffects: { reputation: 40, skill: 15 },
         addPokemon: {
           name: 'Mewtwo',
           species: 'Mewtwo',
@@ -899,7 +933,8 @@ export const GAME_EVENTS: GameEvent[] = [
           isLegendary: true,
           isShiny: true,
           iconEmoji: '🔮'
-        }
+        },
+        isVictory: true
       }
     ]
   },
@@ -914,22 +949,25 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-26-a',
         text: 'Barrer las rondas clasificatorias invicto con rotación de equipo.',
+        statRequirements: { skill: 80 },
         outcomeText: 'Clasificas a la fase final como el favorito número 1 del torneo.',
-        statEffects: { skill: 18, reputation: 20, money: 8000, legendaryScoreDelta: 1 },
+        statEffects: { skill: 18, reputation: 20, money: 8000 },
         isVictory: true
       },
       {
         id: 'opt-26-b',
         text: 'Avanzar paso a paso analizando minuciosamente a cada rival.',
+        statRequirements: { skill: 75, stamina: 60 },
         outcomeText: 'Llegas a las semifinales sin desgaste innecesario en tus Pokémon.',
-        statEffects: { skill: 20, stamina: 10, money: 8000, legendaryScoreDelta: 1 },
+        statEffects: { skill: 20, stamina: 10, money: 8000 },
         isVictory: true
       },
       {
         id: 'opt-26-c',
-        text: 'Confiarte en la primera ronda sobre césped.',
-        outcomeText: 'Sufres un susto enorme pero logras clasificar por los pelos en el desempate.',
-        statEffects: { stamina: -15, skill: 5, legendaryScoreDelta: 1 }
+        text: 'Confiarte en la primera ronda sobre césped sin preparación.',
+        outcomeText: 'Sufres un susto enorme y pierdes el primer combate preliminar.',
+        statEffects: { stamina: -15, skill: -3 },
+        isDefeat: true
       }
     ]
   },
@@ -939,28 +977,29 @@ export const GAME_EVENTS: GameEvent[] = [
     category: 'LEAGUE_TOURNAMENT',
     age: 27,
     location: 'Sede del Alto Mando',
-    description: 'Cuatro salas consecutivas. Cuatro maestros temibles (Veneno, Hielo, Dragón y Lucha). No hay curación entre combates salvo tus propios ítems.',
+    description: 'Cuatro salas consecutivas. Cuatro maestros temibles (Lorelei, Bruno, Agatha y Lance). No hay curación entre combates salvo tus propios ítems.',
     options: [
       {
         id: 'opt-27-a',
         text: 'Administrar tus recursos con precisión clínica y superar a los 4.',
         statRequirements: { skill: 85 },
         outcomeText: '¡Hazaña antológica! Derrotas a Lorelei, Bruno, Agatha y Lance en una noche histórica.',
-        statEffects: { skill: 25, reputation: 25, bond: 20, legendaryScoreDelta: 2 },
+        statEffects: { skill: 15, reputation: 18, bond: 12, legendaryScoreDelta: 10 },
         isVictory: true
       },
       {
         id: 'opt-27-b',
         text: 'Confiar en el espíritu indomable de tu equipo para ganar cada duelo.',
+        statRequirements: { bond: 85, stamina: 65 },
         outcomeText: 'Tus Pokémon lo dan todo por ti. Rompes la barrera del Alto Mando con garra pura.',
-        statEffects: { bond: 30, skill: 20, stamina: -20, legendaryScoreDelta: 2 },
+        statEffects: { bond: 18, skill: 12, stamina: -20, legendaryScoreDelta: 10 },
         isVictory: true
       },
       {
         id: 'opt-27-c',
-        text: 'Caer exhaustion frente al cuarto miembro (Especialista Dragón).',
-        outcomeText: 'Te quedas a las puertas de la gloria. Deberás prepararte un año más.',
-        statEffects: { stamina: -25, skill: 5, legendaryScoreDelta: 1 },
+        text: 'Sufrir agotamiento frente al cuarto miembro (Especialista Dragón).',
+        outcomeText: 'Te quedas a las puertas de la gloria. Caes derrotado por los dragones de Lance.',
+        statEffects: { stamina: -25, skill: -5 },
         isDefeat: true
       }
     ]
@@ -976,24 +1015,24 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-28-a',
         text: 'Ejecutar la obra maestra táctica de tu carrera.',
-        statRequirements: { skill: 70 },
-        outcomeText: '¡¡VICTORIA!! ¡El último Pokémon del Campeón cae derrotado! ¡TE CONVIERTES EN EL NUEVO CAMPEÓN REGIONAL DE LA LIGA POKÉMON! (+25% Estatua Leyenda)',
-        statEffects: { skill: 25, reputation: 35, bond: 25, money: 25000, legendaryScoreDelta: 25 },
+        statRequirements: { skill: 88 },
+        outcomeText: '¡¡VICTORIA!! ¡El último Pokémon del Campeón cae derrotado! ¡TE CONVIERTES EN EL NUEVO CAMPEÓN REGIONAL DE LA LIGA POKÉMON!',
+        statEffects: { skill: 20, reputation: 25, bond: 15, money: 15000, legendaryScoreDelta: 25 },
         isVictory: true
       },
       {
         id: 'opt-28-b',
         text: 'Atacar con el corazón desbordante de pasión y entrega absoluta.',
-        statRequirements: { bond: 70 },
-        outcomeText: '¡Tu Pokémon inicial aguanta por pura lealtad y asesta el golpe final! ¡¡ERES EL NUEVO CAMPEÓN REGIONAL!! (+25% Estatua Leyenda)',
-        statEffects: { bond: 35, reputation: 35, skill: 20, money: 25000, legendaryScoreDelta: 25 },
+        statRequirements: { bond: 88, stamina: 70 },
+        outcomeText: '¡Tu Pokémon inicial aguanta por pura lealtad y asesta el golpe final! ¡¡ERES EL NUEVO CAMPEÓN REGIONAL!!',
+        statEffects: { bond: 25, reputation: 25, skill: 15, money: 15000, legendaryScoreDelta: 25 },
         isVictory: true
       },
       {
         id: 'opt-28-c',
-        text: 'Cometer un fallo de cálculo en el turno final.',
-        outcomeText: 'El Campeón retiene el título por un margen milimétrico. Te aplauden de pie por tu valentía. (+10% Estatua Leyenda)',
-        statEffects: { reputation: 20, money: 10000, legendaryScoreDelta: 10 },
+        text: 'Cometer un fallo de cálculo en el turno final por nerviosismo.',
+        outcomeText: 'El Campeón retiene el título por un margen milimétrico. Caes derrotado en un combate legendario.',
+        statEffects: { reputation: 10, money: 3000 },
         isDefeat: true
       }
     ]
@@ -1009,21 +1048,24 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-29-a',
         text: 'Defender la corona invicto en todas las batallas oficiales (Camino Combate).',
-        outcomeText: 'Consolidas una era de hegemonía indiscutible. Tu legado de combate trasciende fronteras. (+25% Estatua Leyenda)',
-        statEffects: { skill: 20, reputation: 25, money: 20000, legendaryScoreDelta: 25 },
+        statRequirements: { skill: 90 },
+        outcomeText: 'Consolidas una era de hegemonía indiscutible. Tu legado de combate trasciende fronteras.',
+        statEffects: { skill: 20, reputation: 25, money: 15000 },
         isVictory: true
       },
       {
         id: 'opt-29-b',
         text: 'Fundar tu propia academia de jóvenes entrenadores promesa (Camino Mentoría).',
-        outcomeText: 'Formas a la nueva generación de campeones. Tu impacto en la comunidad es inolvidable. (+25% Estatua Leyenda)',
-        statEffects: { reputation: 30, bond: 25, money: 15000, legendaryScoreDelta: 25 }
+        statRequirements: { bond: 85, reputation: 80 },
+        outcomeText: 'Formas a la nueva generación de campeones. Tu impacto en la comunidad es inolvidable.',
+        statEffects: { reputation: 30, bond: 25, money: 12000 }
       },
       {
         id: 'opt-29-c',
         text: 'Viajar como trotamundos en busca de especies raras e indómitas (Camino Captura).',
-        outcomeText: 'Tu vida de aventuras inspira libros de texto y documentales de televisión. (+25% Estatua Leyenda)',
-        statEffects: { stamina: 20, bond: 20, legendaryScoreDelta: 25 }
+        statRequirements: { stamina: 80 },
+        outcomeText: 'Tu vida de aventuras inspira libros de texto y documentales de televisión.',
+        statEffects: { stamina: 20, bond: 20 }
       }
     ]
   },
@@ -1038,20 +1080,20 @@ export const GAME_EVENTS: GameEvent[] = [
       {
         id: 'opt-30-a',
         text: 'Consagrar tu Estatua de Oro Inmortal como Maestro de la Pokédex Kanto.',
-        outcomeText: '¡La Liga revela tu monumento de oro celebrando la captura e investigación completa de Kanto! ¡Estatua Leyenda al 100%!',
-        statEffects: { legendaryScoreDelta: 30 }
+        outcomeText: '¡La Liga revela tu monumento de oro celebrando tus logros en Kanto!',
+        statEffects: { }
       },
       {
         id: 'opt-30-b',
         text: 'Erigir tu Estatua de Oro Inmortal junto a tu Equipo Campeón en el Salón de la Fama.',
-        outcomeText: '¡Tallada en granito y bañada en oro puro, tu estatua preside la entrada del Salón de la Fama! ¡Estatua Leyenda al 100%!',
-        statEffects: { legendaryScoreDelta: 30 }
+        outcomeText: '¡Tallada en granito y de pie en el Salón de la Fama, tu estatua preside la entrada!',
+        statEffects: { }
       },
       {
         id: 'opt-30-c',
         text: 'Dedicar la Estatua a la Vínculo y Mentoría de las Futuras Generaciones de Kanto.',
-        outcomeText: '¡Tu estatua servirá de inspiración eterna para miles de niños que inician su viaje en Pueblo Paleta! ¡Estatua Leyenda al 100%!',
-        statEffects: { legendaryScoreDelta: 30 }
+        outcomeText: '¡Tu estatua servirá de inspiración para miles de niños que inician su viaje en Pueblo Paleta!',
+        statEffects: { }
       }
     ]
   }
@@ -1071,15 +1113,17 @@ export const CHAINED_EVENTS: GameEvent[] = [
       {
         id: 'opt-chain-rival-a',
         text: 'Anticipar su contragolpe con una cobertura elemental perfecta.',
+        statRequirements: { skill: 38 },
         outcomeText: 'Sorprendes totalmente a tu rival. Reconoce tu superioridad estratégica con rabia contenida.',
-        statEffects: { skill: 15, reputation: 12, legendaryScoreDelta: 6 },
+        statEffects: { skill: 15, reputation: 12 },
         isVictory: true
       },
       {
         id: 'opt-chain-rival-b',
         text: 'Ofrecerle una revancha amistosa compartiendo tácticas de equipo.',
+        statRequirements: { bond: 40 },
         outcomeText: 'Tu rival acepta a regañadientes y fortalecen una sana rivalidad que te motiva a mejorar.',
-        statEffects: { bond: 20, reputation: 15, legendaryScoreDelta: 5 }
+        statEffects: { bond: 20, reputation: 15 }
       }
     ]
   },
@@ -1096,15 +1140,17 @@ export const CHAINED_EVENTS: GameEvent[] = [
       {
         id: 'opt-chain-rocket-a',
         text: 'Enfrentar al Comandante en un intenso combate con desventaja de luz.',
-        outcomeText: 'Luchas con valentía indestructible y derrotas a su Houndoom. ¡Consigues arrebatarle una Master Ball de contrabando!',
-        statEffects: { skill: 18, reputation: 20, money: 3000, legendaryScoreDelta: 8 },
+        statRequirements: { skill: 45 },
+        outcomeText: 'Luchas con valentía indestructible y derrotas a su Houndoom. ¡Consigues arrebatarle suministros de contrabando!',
+        statEffects: { skill: 18, reputation: 20, money: 2000 },
         isVictory: true
       },
       {
         id: 'opt-chain-rocket-b',
         text: 'Utilizar el terreno oscuro para confundir a los ejecutivos y escapar victorioso.',
+        statRequirements: { stamina: 45 },
         outcomeText: 'Logras poner a salvo a tu equipo y alertar a los Oficiales de Policía de la patrulla más cercana.',
-        statEffects: { stamina: 10, bond: 15, reputation: 15, legendaryScoreDelta: 5 }
+        statEffects: { stamina: 10, bond: 15, reputation: 15 }
       }
     ]
   },
@@ -1121,15 +1167,17 @@ export const CHAINED_EVENTS: GameEvent[] = [
       {
         id: 'opt-chain-casino-a',
         text: 'Competir en el torneo subterráneo para ganar el premio gordo.',
+        statRequirements: { skill: 45 },
         outcomeText: 'Ganas el torneo clandestino amasando una fortuna en Pokécupones, pero la policía te sigue la pista.',
-        statEffects: { money: 12000, reputation: -10, skill: 10, legendaryScoreDelta: 2 },
+        statEffects: { money: 6000, reputation: -10, skill: 10 },
         isVictory: true
       },
       {
         id: 'opt-chain-casino-b',
         text: 'Boicotear la competición ilegal y liberar a los Pokémon secuestrados.',
+        statRequirements: { bond: 45 },
         outcomeText: 'Liberas a un Dratini retenido en las jaulas que inmediatamente decide unirse a tu equipo.',
-        statEffects: { bond: 25, reputation: 20, legendaryScoreDelta: 8 },
+        statEffects: { bond: 25, reputation: 20 },
         addPokemon: {
           name: 'Dratini Rescatado',
           species: 'Dratini',
@@ -1154,6 +1202,7 @@ export const CHAINED_EVENTS: GameEvent[] = [
       {
         id: 'opt-chain-fossil-a',
         text: 'Dar la bienvenida a Aerodactyl en tu equipo de combate.',
+        statRequirements: { skill: 55 },
         outcomeText: '¡Un imponente Aerodactyl despierta de su letargo ancestral y emite un rugido feroz aceptando tu liderazgo!',
         statEffects: { skill: 15, reputation: 22, legendaryScoreDelta: 10 },
         addPokemon: {
@@ -1170,7 +1219,7 @@ export const CHAINED_EVENTS: GameEvent[] = [
         id: 'opt-chain-fossil-b',
         text: 'Donar el espécimen resucitado al Museo de Ciencias para su preservación.',
         outcomeText: 'La comunidad científica internacional premia tu generosidad con una gran beca y reconocimiento mundial.',
-        statEffects: { reputation: 35, money: 15000, legendaryScoreDelta: 12 }
+        statEffects: { reputation: 35, money: 8000, legendaryScoreDelta: 10 }
       }
     ]
   },
@@ -1187,6 +1236,7 @@ export const CHAINED_EVENTS: GameEvent[] = [
       {
         id: 'opt-chain-zapdos-a',
         text: 'Lanzar una Ultra Ball con concentración absoluta bajo los relámpagos.',
+        statRequirements: { skill: 65 },
         outcomeText: '¡Pipi-pip... Clic! ¡Logras capturar al Ave Legendaria Zapdos en una demostración mítica de habilidad!',
         statEffects: { skill: 25, reputation: 30, legendaryScoreDelta: 15 },
         addPokemon: {
@@ -1202,8 +1252,9 @@ export const CHAINED_EVENTS: GameEvent[] = [
       {
         id: 'opt-chain-zapdos-b',
         text: 'Sintonizar la frecuencia de tu equipo con la tormenta para recibir su bendición.',
+        statRequirements: { bond: 60 },
         outcomeText: 'Zapdos descarga un rayo purificador sobre tu equipo y vuela libre hacia las nubes, dejando una fuerza insuperable.',
-        statEffects: { bond: 30, skill: 20, stamina: 25, legendaryScoreDelta: 12 }
+        statEffects: { bond: 30, skill: 20, stamina: 25, legendaryScoreDelta: 15 }
       }
     ]
   }
@@ -1356,8 +1407,9 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-bc-a',
         text: 'Demostrar la velocidad de tu equipo en un combate rápido.',
+        statRequirements: { skill: 25 },
         outcomeText: 'Superas velozmente a sus Butterfree. Impresionado, el Cazabichos te regala una Malla Ball.',
-        statEffects: { skill: 8, money: 600, legendaryScoreDelta: 2 },
+        statEffects: { skill: 8, money: 600 },
         isVictory: true
       },
       {
@@ -1387,6 +1439,7 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-dc-a',
         text: 'Capturar al Dugtrio veloz antes de que se entierre de nuevo.',
+        statRequirements: { skill: 28 },
         outcomeText: '¡Pipi-pip... Clic! Capturas a un Dugtrio veloz que se convierte en la fuerza terrestre de tu equipo.',
         statEffects: { skill: 10, stamina: -5 },
         addPokemon: {
@@ -1402,7 +1455,7 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
         id: 'opt-dc-b',
         text: 'Recolectar las Piedras de Arena descubiertas en la grieta.',
         outcomeText: 'Encuentras Pepitas de oro y Pepitas de roca que puedes vender por un valor considerable.',
-        statEffects: { money: 2500, stamina: 10 }
+        statEffects: { money: 2000, stamina: 10 }
       }
     ]
   },
@@ -1417,12 +1470,14 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-fm-a',
         text: 'Comprar un Fósil Hélix misterioso para el futuro.',
+        statRequirements: { money: 1000 },
         outcomeText: 'Adquieres la reliquia marina prehistórica conservándola cuidadosamente en tu mochila.',
-        statEffects: { money: -1000, reputation: 10, legendaryScoreDelta: 4 }
+        statEffects: { money: -1000, reputation: 10 }
       },
       {
         id: 'opt-fm-b',
         text: 'Negociar por una Piedra Fuego para potenciar a tu equipo.',
+        statRequirements: { money: 500 },
         outcomeText: 'Tu capacidad de negociación te permite conseguir un mineral evolutivo a excelente precio.',
         statEffects: { money: -500, skill: 10, bond: 10 }
       }
@@ -1438,14 +1493,16 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
     options: [
       {
         id: 'opt-ssa-a',
-        text: 'Barrer el torneo con tácticas ofensivas impeccables.',
+        text: 'Barrer el torneo con tácticas ofensivas impecables.',
+        statRequirements: { skill: 38 },
         outcomeText: 'Derrotas a todos los contendientes. El Capitán te entrega la MO Corte con aplausos clamorosos.',
-        statEffects: { skill: 15, reputation: 18, money: 3000, legendaryScoreDelta: 6 },
+        statEffects: { skill: 15, reputation: 18, money: 2500 },
         isVictory: true
       },
       {
         id: 'opt-ssa-b',
         text: 'Invitar al Capitán a un duelo de exhibición amistoso.',
+        statRequirements: { bond: 35 },
         outcomeText: 'El veterano marino admira el Vínculo con tu equipo y te recompensa con la MO Corte y un abrigo marino.',
         statEffects: { bond: 20, reputation: 15 }
       }
@@ -1462,6 +1519,7 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-tro-a',
         text: 'Despertarlo con respeto y ganarte su lealtad en combate.',
+        statRequirements: { skill: 38 },
         outcomeText: 'Tras un feroz combate en la cueva, Onix baja su cabeza aceptando ser capturado.',
         statEffects: { skill: 12, reputation: 10 },
         addPokemon: {
@@ -1492,6 +1550,7 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-cb-a',
         text: 'Operar el panel de control del PC para revertir la fusión.',
+        statRequirements: { skill: 30 },
         outcomeText: '¡Éxito! Bill regresa a su forma humana agradecido y te regala un Ticket para el S.S. Anne y un Eevee.',
         statEffects: { skill: 10, reputation: 15, money: 1500 },
         addPokemon: {
@@ -1506,6 +1565,7 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-cb-b',
         text: 'Analizar el software del Teletransportador para aprender su funcionamiento.',
+        statRequirements: { skill: 35 },
         outcomeText: 'Bill queda deslumbrado por tu intelecto y te nombra su asistente honorario en Kanto.',
         statEffects: { skill: 15, reputation: 20 }
       }
@@ -1522,8 +1582,9 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-ci-a',
         text: 'Provocar un cortocircuito en los paneles de control y tomar la bóveda.',
+        statRequirements: { skill: 45 },
         outcomeText: 'Desarmas la seguridad, recuperas fondos incautados y liberas a un Porygon digital retenido.',
-        statEffects: { skill: 18, money: 5000, legendaryScoreDelta: 6 },
+        statEffects: { skill: 18, money: 4000 },
         addPokemon: {
           name: 'Porygon',
           species: 'Porygon',
@@ -1537,8 +1598,9 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-ci-b',
         text: 'Infiltrarte en silencio y llevarte los planos del Silph Scope.',
+        statRequirements: { stamina: 40 },
         outcomeText: 'Consigues los planos para detectar fantasmas y escapas antes de que den la alarma.',
-        statEffects: { skill: 15, reputation: 15, legendaryScoreDelta: 5 }
+        statEffects: { skill: 15, reputation: 15 }
       }
     ]
   },
@@ -1553,8 +1615,9 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-dk-a',
         text: 'Elegir las patadas relámpago de Hitmonlee tras ganar el duelo.',
+        statRequirements: { skill: 48 },
         outcomeText: 'Derrotas al Maestro con técnica limpia. Te otorga la custodia del ágil Hitmonlee.',
-        statEffects: { skill: 20, reputation: 15, legendaryScoreDelta: 5 },
+        statEffects: { skill: 20, reputation: 15 },
         addPokemon: {
           name: 'Hitmonlee',
           species: 'Hitmonlee',
@@ -1568,8 +1631,9 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-dk-b',
         text: 'Elegir los puñetazos de fuego y hielo de Hitmonchan.',
+        statRequirements: { stamina: 45 },
         outcomeText: 'Tus bloqueos perfectos superan la prueba. Hitmonchan se une con entusiasmo a tu equipo.',
-        statEffects: { skill: 20, stamina: 15, legendaryScoreDelta: 5 },
+        statEffects: { skill: 20, stamina: 15 },
         addPokemon: {
           name: 'Hitmonchan',
           species: 'Hitmonchan',
@@ -1593,8 +1657,9 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-se-a',
         text: 'Usar Cebo de Baya y lanzar una Safari Ball con precisión milimétrica.',
+        statRequirements: { skill: 48 },
         outcomeText: '¡Pipi-pip... Clic! Capturas con éxito a un majestuoso Dratini en la reserva.',
-        statEffects: { skill: 15, bond: 15, legendaryScoreDelta: 8 },
+        statEffects: { skill: 15, bond: 15 },
         addPokemon: {
           name: 'Dratini Safari',
           species: 'Dratini',
@@ -1607,8 +1672,8 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-se-b',
         text: 'Explorar la Cabaña del Guardián y encontrar los Dientes de Oro perdidos.',
-        outcomeText: 'Devuelves los Dientes de Oro al Guardián. En gratitud te obsequia la MO Surf y 4,000 Pokécupones.',
-        statEffects: { reputation: 25, money: 4000, legendaryScoreDelta: 6 }
+        outcomeText: 'Devuelves los Dientes de Oro al Guardián. En gratitud te obsequia la MO Surf y 3,000 Pokécupones.',
+        statEffects: { reputation: 25, money: 3000 }
       }
     ]
   },
@@ -1623,8 +1688,9 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-ie-a',
         text: 'Ofrecerle refugio y compañía en tu equipo de combate.',
+        statRequirements: { bond: 55 },
         outcomeText: 'Lapras canta una dulce melodía y se une felizmente a tu equipo para surcar los océanos.',
-        statEffects: { bond: 25, stamina: 15, legendaryScoreDelta: 8 },
+        statEffects: { bond: 25, stamina: 15 },
         addPokemon: {
           name: 'Lapras',
           species: 'Lapras',
@@ -1637,8 +1703,9 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-ie-b',
         text: 'Sincronizar el aura del equipo para soportar las temperaturas bajo cero.',
+        statRequirements: { stamina: 55 },
         outcomeText: 'Fortaleces la resistencia física de tu equipo ante las inclemencias más extremas.',
-        statEffects: { stamina: 30, bond: 20 }
+        statEffects: { stamina: 25, bond: 20 }
       }
     ]
   },
@@ -1653,6 +1720,7 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-ce-a',
         text: 'Capturar al poderoso Electabuzz líder de la manada.',
+        statRequirements: { skill: 55 },
         outcomeText: 'Tras un electrizante duelo de velocidad, atrapas a Electabuzz con una Ultra Ball.',
         statEffects: { skill: 20, reputation: 15 },
         addPokemon: {
@@ -1668,7 +1736,7 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
         id: 'opt-ce-b',
         text: 'Absorber la energía magnética excedente para recargar tus dispositivos.',
         outcomeText: 'Consigues reparar generadores antiguos y obtienes baterías de alto valor de mercado.',
-        statEffects: { money: 6000, skill: 15 }
+        statEffects: { money: 4000, skill: 15 }
       }
     ]
   },
@@ -1683,13 +1751,15 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
       {
         id: 'opt-brs-a',
         text: 'Acelerar a fondo y vencer al líder de los motoristas.',
+        statRequirements: { skill: 55 },
         outcomeText: 'Cruzas la meta en primer lugar. Ganándote el respeto absoluto de toda la fraternidad urbana.',
-        statEffects: { skill: 22, reputation: 25, money: 5000, legendaryScoreDelta: 8 },
+        statEffects: { skill: 22, reputation: 25, money: 4000 },
         isVictory: true
       },
       {
         id: 'opt-brs-b',
         text: 'Realizar maniobras acrobáticas con tu Pokémon Volador.',
+        statRequirements: { reputation: 50 },
         outcomeText: 'Sorprendes a la multitud con un espectáculo aéreo sensacional.',
         statEffects: { reputation: 30, bond: 15 }
       }
@@ -1700,7 +1770,7 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
 export const MASTER_PROTOCOL_EVENTS: GameEvent[] = [
   {
     id: 'event-master-protocol-100',
-    title: ' PROTOCOLO SECLU-100: El Escáner Cuántico del Profesor Oak y la Cumbre de Kanto',
+    title: 'PROTOCOLO SECLU-100: El Escáner Cuántico del Profesor Oak y la Cumbre de Kanto',
     category: 'LEAGUE_TOURNAMENT',
     age: 28,
     location: 'Laboratorio Central de Pueblo Paleta - Sede Cuántica',
@@ -1708,10 +1778,10 @@ export const MASTER_PROTOCOL_EVENTS: GameEvent[] = [
     options: [
       {
         id: 'opt-mp-100-a',
-        text: ' Desplegar el Protocolo Maestro 100%: Escáner Cuántico y Sincronización Total de Kanto.',
-        statRequirements: { skill: 75, bond: 75, reputation: 75 },
-        outcomeText: '¡MISION MAESTRA COMPLETADA AL 100%! [PROTOCOLO 100% ACTIVADO] El escáner cuántico de Oak registra los 151 Pokémon de Kanto en tu Pokédex, te concede la Medalla Gran Maestro 100% y convoca a Mew para unirse a tu legado supremo.',
-        statEffects: { skill: 30, bond: 30, reputation: 40, money: 15000, legendaryScoreDelta: 100 },
+        text: 'Desplegar el Protocolo Maestro 100%: Escáner Cuántico y Sincronización Total de Kanto.',
+        statRequirements: { skill: 85, bond: 85, reputation: 85 },
+        outcomeText: '¡MISIÓN MAESTRA COMPLETADA! El escáner cuántico de Oak registra los 151 Pokémon de Kanto en tu Pokédex, te concede la Medalla Gran Maestro y convoca a Mew para unirse a tu legado supremo.',
+        statEffects: { skill: 30, bond: 30, reputation: 40, money: 10000, legendaryScoreDelta: 15 },
         awardBadgeId: 'badge-master-100',
         addPokemon: {
           name: 'Mew',
@@ -1728,8 +1798,8 @@ export const MASTER_PROTOCOL_EVENTS: GameEvent[] = [
       {
         id: 'opt-mp-100-b',
         text: 'Contribuir con tus apuntes de campo al archivo estándar de la región.',
-        outcomeText: 'Aportas valiosa información al Profesor Oak y te otorga una subvención investigadora de $10,000.',
-        statEffects: { money: 10000, skill: 15, reputation: 20 }
+        outcomeText: 'Aportas valiosa información al Profesor Oak y te otorga una subvención investigadora de $8,000.',
+        statEffects: { money: 8000, skill: 15, reputation: 20 }
       }
     ]
   }

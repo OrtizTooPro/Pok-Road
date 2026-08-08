@@ -366,10 +366,54 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }
       }
 
+      // Dynamic Combat & Option Resolution
+      let isActualVictory = !!option.isVictory;
+      let isActualDefeat = !!option.isDefeat;
+      let actualOutcomeText = option.outcomeText;
+      let actualAwardedBadge = awardedBadge;
+
+      const isCombatCat = currentEvent.category === 'GYM_BATTLE' || currentEvent.category === 'RIVAL_MATCH' || currentEvent.category === 'VILLAIN_TEAM' || currentEvent.category === 'LEAGUE_TOURNAMENT';
+
+      if (isCombatCat && option.isVictory) {
+        const teamAvgLvl = newTeam.length > 0
+          ? Math.round(newTeam.reduce((acc, m) => acc + (m.level || 5), 0) / newTeam.length)
+          : 8;
+        const expectedLvl = Math.floor(currentEvent.age * 2.3);
+
+        let combatPower = newStats.skill + typeMatchup.skillBonus;
+
+        // Stamina effects on combat
+        if (newStats.stamina < 25) combatPower -= 20;
+        else if (newStats.stamina < 45) combatPower -= 10;
+        else if (newStats.stamina >= 80) combatPower += 5;
+
+        // Level gap penalty/bonus
+        const levelGap = teamAvgLvl - expectedLvl;
+        if (levelGap < 0) combatPower += levelGap * 5;
+        else combatPower += Math.min(10, levelGap * 2);
+
+        // Required difficulty scaling
+        let requiredPower = Math.floor(currentEvent.age * 3.2 + 8);
+        if (currentEvent.category === 'GYM_BATTLE') requiredPower += 8;
+        if (currentEvent.category === 'LEAGUE_TOURNAMENT') requiredPower += 15;
+
+        if (combatPower < requiredPower) {
+          isActualVictory = false;
+          isActualDefeat = true;
+          actualAwardedBadge = undefined;
+          if (option.awardBadgeId) {
+            newBadges = newBadges.filter(b => b !== option.awardBadgeId);
+          }
+          newStats.reputation = Math.max(0, newStats.reputation - 6);
+          newStats.stamina = Math.max(0, newStats.stamina - 15);
+          actualOutcomeText = `¡DERROTA EN COMBATE! Tu nivel de combate (${Math.max(0, combatPower)} Pts) fue superado por la potencia del rival (${requiredPower} Pts) en ${currentEvent.location}. El cansancio acumulado, la desventaja elemental o la falta de nivel provocaron la caída de tu equipo.`;
+        }
+      }
+
       // Process automatic leveling, EXP distribution and evolution for all Pokémon in team
       const { updatedTeam, evolutionNotices, expSummary } = processTeamLevelingAndEvolution(
         newTeam,
-        !!option.isVictory,
+        isActualVictory,
         state.specialization,
         currentEvent.category,
         newStats.bond,
@@ -389,8 +433,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       if (effects.money) statChangesList.push({ stat: 'money', delta: effects.money, label: 'Pokécupones ($)' });
       if (deltaLegendary) statChangesList.push({ stat: 'legendaryScore', delta: deltaLegendary, label: 'Estatua Leyenda' });
 
-      const victs = state.career.victories + (option.isVictory ? 1 : 0);
-      const defs = state.career.defeats + (option.isDefeat ? 1 : 0);
+      const victs = state.career.victories + (isActualVictory ? 1 : 0);
+      const defs = state.career.defeats + (isActualDefeat ? 1 : 0);
       const caughtCount = state.career.pokemonCaught + (option.addPokemon ? 1 : 0);
       const daysAdded = option.daysDelta || 25;
       const newDaysSpent = (state.career.daysSpent || 1) + daysAdded;
@@ -455,9 +499,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         age: currentEvent.age,
         eventTitle: currentEvent.title,
         chosenOption: option.text,
-        summary: option.outcomeText,
+        summary: actualOutcomeText,
         statChanges: statChangesList.map(s => `${s.delta > 0 ? '+' : ''}${s.delta} ${s.label}`),
-        badgeEarned: awardedBadge?.name,
+        badgeEarned: actualAwardedBadge?.name,
         pokemonAdded: pokemonAwarded?.name,
         chainedEventUnlocked: unlockedChainedTitle
       };
@@ -505,9 +549,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         isGameOver: isOver,
         lastOutcome: {
           title: currentEvent.title,
-          description: option.outcomeText,
+          description: actualOutcomeText,
           statChanges: statChangesList,
-          badgeAwarded: awardedBadge,
+          badgeAwarded: actualAwardedBadge,
           pokemonAwarded: pokemonAwarded,
           sentToPC: wasSentToPC,
           evolvedPokemon: evolvedName,
