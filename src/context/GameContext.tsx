@@ -27,8 +27,10 @@ import {
   evolvePokemonWithStone,
   generateRandomIVs
 } from '../utils/pokemonEvolution';
+import { KANTO_ITEMS } from '../data/kantoItems';
 import { evaluateLeaderMatchup } from '../utils/typeChart';
 import { getItemById } from '../data/kantoItems';
+import { attemptPokemonCapture } from '../utils/captureEngine';
 
 const SAVE_KEY = 'POKEROAD_SAVEGAME_V1';
 
@@ -95,6 +97,7 @@ interface GameContextType {
   toggleSound: () => void;
   buyItem: (itemId: string, quantity: number) => void;
   useItem: (itemId: string, pokemonId?: string) => boolean;
+  healTeamAtCenter: () => void;
   currentEvent: GameEvent | null;
   calculateLegacyTier: (score: number) => CareerLegacyTier;
   getEarnedBadges: () => Badge[];
@@ -115,6 +118,7 @@ const initialState: GameState = {
   avatarId: 'avatar-red',
   specialization: 'Combate',
   stats: { ...initialStats },
+  teamFatigue: 0,
   career: {
     age: 10,
     victories: 0,
@@ -146,6 +150,7 @@ function loadSavedGame(): GameState {
   if (saved) {
     if (!saved.inventory) saved.inventory = { 'potion': 2, 'poke-ball': 3 };
     if (!saved.career.pcBox) saved.career.pcBox = [];
+    if (saved.teamFatigue === undefined) saved.teamFatigue = 0;
     // Keep saved progress, but start on menu so player can choose to continue or start a new adventure
     return {
       ...saved,
@@ -175,7 +180,8 @@ type GameAction =
   | { type: 'SET_ACTIVE_TAB'; payload: NavigationTab }
   | { type: 'TOGGLE_SOUND' }
   | { type: 'BUY_ITEM'; payload: { itemId: string; quantity: number } }
-  | { type: 'USE_ITEM'; payload: { itemId: string; pokemonId?: string } };
+  | { type: 'USE_ITEM'; payload: { itemId: string; pokemonId?: string } }
+  | { type: 'HEAL_POKEMON_CENTER' };
 
 function calculateLegacyTier(score: number): CareerLegacyTier {
   if (score >= 90) return '¡LEYENDA DEL SALÓN DE LA FAMA!';
@@ -261,6 +267,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }],
         activeEvents: generateRandomAdventure(spec, starterChoice.id),
         unlockedChainedEventIds: [],
+        inventory: { 'poke-ball': 5, 'potion': 2 },
         currentEventIndex: 0,
         isGameStarted: true,
         isGameOver: false,
@@ -299,42 +306,61 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
       let newTeam = [...state.career.team];
       let newPCBox = [...(state.career.pcBox || [])];
+      let newInventory = { ...(state.inventory || {}) };
       let pokemonAwarded: PokemonMember | undefined = undefined;
       let wasSentToPC = false;
       let evolvedName: string | undefined = undefined;
+      let catchNoticeObj: any = undefined;
 
       // Type matchup evaluation based on Team Leader (Slot #1)
       const leaderMon = newTeam[0];
       const typeMatchup = evaluateLeaderMatchup(leaderMon, currentEvent);
 
-      // Add new Pokemon if provided - balanced with team average level
+      // Add new Pokemon if provided - requires Poké Ball in inventory & uses capture engine
       if (option.addPokemon) {
-        const teamAvgLvl = newTeam.length > 0
-          ? Math.round(newTeam.reduce((acc, m) => acc + (m.level || 5), 0) / newTeam.length)
-          : 8;
+        const captureResult = attemptPokemonCapture(
+          option.addPokemon,
+          newInventory,
+          state.specialization,
+          newStats.skill,
+          currentEvent.location
+        );
 
-        const normalizedReward = normalizePokemonReward(option.addPokemon, teamAvgLvl);
-        const kantoMatch = findPokemonByName(normalizedReward.species || normalizedReward.name);
-        const monIVs = normalizedReward.ivs || generateRandomIVs();
+        catchNoticeObj = captureResult.catchNotice;
 
-        const newMon: PokemonMember = {
-          ...normalizedReward,
-          id: `mon-${Date.now()}-${Math.random()}`,
-          ivs: monIVs,
-          exp: normalizedReward.exp || 0,
-          maxExp: calculateMaxExpForLevel(normalizedReward.level),
-          stats: calculatePokemonStats(normalizedReward.level, normalizedReward.stage || 1, normalizedReward.species, monIVs),
-          moves: getPokemonMoves(normalizedReward.species, normalizedReward.level, normalizedReward.type),
-          spriteUrl: normalizedReward.spriteUrl || (kantoMatch ? kantoMatch.sprite : undefined)
-        };
-        if (newTeam.length < 6) {
-          newTeam.push(newMon);
-        } else {
-          // Team is full (6) -> Send directly to PC Box!
-          newPCBox.push(newMon);
-          wasSentToPC = true;
+        if (captureResult.consumedBallId) {
+          const ballQty = newInventory[captureResult.consumedBallId] || 0;
+          newInventory[captureResult.consumedBallId] = Math.max(0, ballQty - 1);
         }
-        pokemonAwarded = newMon;
+
+        if (captureResult.captured) {
+          const teamAvgLvl = newTeam.length > 0
+            ? Math.round(newTeam.reduce((acc, m) => acc + (m.level || 5), 0) / newTeam.length)
+            : 8;
+
+          const normalizedReward = normalizePokemonReward(option.addPokemon, teamAvgLvl);
+          const kantoMatch = findPokemonByName(normalizedReward.species || normalizedReward.name);
+          const monIVs = normalizedReward.ivs || generateRandomIVs();
+
+          const newMon: PokemonMember = {
+            ...normalizedReward,
+            id: `mon-${Date.now()}-${Math.random()}`,
+            ivs: monIVs,
+            exp: normalizedReward.exp || 0,
+            maxExp: calculateMaxExpForLevel(normalizedReward.level),
+            stats: calculatePokemonStats(normalizedReward.level, normalizedReward.stage || 1, normalizedReward.species, monIVs),
+            moves: getPokemonMoves(normalizedReward.species, normalizedReward.level, normalizedReward.type),
+            spriteUrl: normalizedReward.spriteUrl || (kantoMatch ? kantoMatch.sprite : undefined)
+          };
+          if (newTeam.length < 6) {
+            newTeam.push(newMon);
+          } else {
+            // Team is full (6) -> Send directly to PC Box!
+            newPCBox.push(newMon);
+            wasSentToPC = true;
+          }
+          pokemonAwarded = newMon;
+        }
       }
 
       // Handle starter evolution if triggered
@@ -366,6 +392,35 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }
       }
 
+      // Handle item reward if option awards an item
+      let awardedItemName: string | undefined = undefined;
+      if (option.addItemId) {
+        const itemQty = option.addItemQty || 1;
+        const currentQty = newInventory[option.addItemId] || 0;
+        newInventory[option.addItemId] = currentQty + itemQty;
+
+        const foundItem = KANTO_ITEMS.find(i => i.id === option.addItemId);
+        if (foundItem) {
+          awardedItemName = `${itemQty}x ${foundItem.name}`;
+        }
+      }
+
+      // Team Fatigue accumulation per event choice
+      let baseFatigueGain = 15;
+      if (currentEvent.category === 'GYM_BATTLE' || currentEvent.category === 'LEAGUE_TOURNAMENT' || currentEvent.category === 'VILLAIN_TEAM') {
+        baseFatigueGain = 20;
+      } else if (currentEvent.category === 'LIFESTYLE') {
+        baseFatigueGain = 8;
+      }
+
+      if (state.specialization === 'Combate' || state.specialization === 'Estrategia') {
+        baseFatigueGain = Math.max(5, baseFatigueGain - 3);
+      }
+
+      const prevFatigue = state.teamFatigue ?? 0;
+      const newFatigue = Math.min(100, prevFatigue + baseFatigueGain);
+      const fatigueDelta = newFatigue - prevFatigue;
+
       // Dynamic Combat & Option Resolution
       let isActualVictory = !!option.isVictory;
       let isActualDefeat = !!option.isDefeat;
@@ -386,6 +441,13 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         if (newStats.stamina < 25) combatPower -= 20;
         else if (newStats.stamina < 45) combatPower -= 10;
         else if (newStats.stamina >= 80) combatPower += 5;
+
+        // Team Fatigue effects on combat power
+        if (prevFatigue >= 75) {
+          combatPower -= 20; // Severe fatigue penalty
+        } else if (prevFatigue >= 40) {
+          combatPower -= 10; // Moderate fatigue penalty
+        }
 
         // Level gap penalty/bonus
         const levelGap = teamAvgLvl - expectedLvl;
@@ -435,7 +497,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
       const victs = state.career.victories + (isActualVictory ? 1 : 0);
       const defs = state.career.defeats + (isActualDefeat ? 1 : 0);
-      const caughtCount = state.career.pokemonCaught + (option.addPokemon ? 1 : 0);
+      const caughtCount = state.career.pokemonCaught + (pokemonAwarded ? 1 : 0);
       const daysAdded = option.daysDelta || 25;
       const newDaysSpent = (state.career.daysSpent || 1) + daysAdded;
 
@@ -529,6 +591,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         stats: newStats,
+        teamFatigue: newFatigue,
+        inventory: newInventory,
         activeEvents: nextActiveEvents,
         unlockedChainedEventIds: newUnlockedChainedIds,
         career: {
@@ -551,6 +615,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           title: currentEvent.title,
           description: actualOutcomeText,
           statChanges: statChangesList,
+          fatigueDelta,
+          newFatigue,
           badgeAwarded: actualAwardedBadge,
           pokemonAwarded: pokemonAwarded,
           sentToPC: wasSentToPC,
@@ -558,6 +624,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           newAchievements: newlyUnlocked.length > 0 ? newlyUnlocked : undefined,
           chainedEventUnlockedTitle: unlockedChainedTitle,
           expSummary,
+          catchNotice: catchNoticeObj,
           typeMatchupNotice: {
             label: typeMatchup.label,
             description: typeMatchup.effectDescription,
@@ -802,6 +869,18 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       let newStats = { ...state.stats };
       let newTeam = [...state.career.team];
 
+      let fatigueReduction = 0;
+      if (item.id === 'potion') fatigueReduction = 30;
+      else if (item.id === 'super-potion') fatigueReduction = 60;
+      else if (item.id === 'hyper-potion') fatigueReduction = 90;
+      else if (item.id === 'max-potion' || item.id === 'full-restore') fatigueReduction = 100;
+      else if (item.id === 'revive') fatigueReduction = 50;
+      else if (item.id === 'full-heal') fatigueReduction = 25;
+      else if (item.id === 'antidote') fatigueReduction = 15;
+
+      const currentFatigue = state.teamFatigue ?? 0;
+      const newFatigue = Math.max(0, currentFatigue - fatigueReduction);
+
       if (item.category === 'STONE') {
         if (newTeam.length > 0) {
           const targetIndex = pokemonId
@@ -826,6 +905,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         stats: newStats,
+        teamFatigue: newFatigue,
         inventory: {
           ...currentInv,
           [itemId]: Math.max(0, currentQty - 1)
@@ -833,6 +913,21 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         career: {
           ...state.career,
           team: newTeam
+        }
+      };
+    }
+
+    case 'HEAL_POKEMON_CENTER': {
+      return {
+        ...state,
+        teamFatigue: 0,
+        stats: {
+          ...state.stats,
+          stamina: 100
+        },
+        career: {
+          ...state.career,
+          daysSpent: state.career.daysSpent + 1
         }
       };
     }
@@ -973,6 +1068,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   };
 
+  const healTeamAtCenter = () => {
+    if (state.soundEnabled) soundFx.playBadgeFanfare();
+    dispatch({ type: 'HEAL_POKEMON_CENTER' });
+  };
+
   const activeEventsList = state.activeEvents && state.activeEvents.length > 0
     ? state.activeEvents
     : GAME_EVENTS.filter(e => !e.isChainedOnly);
@@ -1012,6 +1112,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toggleSound,
         buyItem,
         useItem,
+        healTeamAtCenter,
         currentEvent,
         calculateLegacyTier,
         getEarnedBadges,

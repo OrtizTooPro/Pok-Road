@@ -8,9 +8,9 @@ interface TypeChartModalProps {
 }
 
 const KANTO_TYPES = [
-  'Normal', 'Fuego', 'Agua', 'Planta', 'Eléctrico', 'Hielo', 
-  'Lucha', 'Veneno', 'Tierra', 'Volador', 'Psíquico', 'Bicho', 
-  'Roca', 'Fantasma', 'Dragón', 'Acero', 'Hada'
+  'Acero', 'Agua', 'Bicho', 'Dragón', 'Eléctrico', 'Fantasma',
+  'Fuego', 'Hada', 'Hielo', 'Lucha', 'Normal', 'Planta',
+  'Psíquico', 'Roca', 'Sonido', 'Tierra', 'Veneno', 'Volador'
 ];
 
 const TYPE_COLORS: Record<string, { bg: string; text: string; border: string; badge: string }> = {
@@ -30,6 +30,7 @@ const TYPE_COLORS: Record<string, { bg: string; text: string; border: string; ba
   Fantasma: { bg: 'bg-violet-200', text: 'text-violet-950', border: 'border-violet-700', badge: 'bg-violet-800 text-white' },
   Dragón: { bg: 'bg-teal-200', text: 'text-teal-950', border: 'border-teal-700', badge: 'bg-teal-800 text-white' },
   Acero: { bg: 'bg-slate-200', text: 'text-slate-900', border: 'border-slate-600', badge: 'bg-slate-600 text-white' },
+  Sonido: { bg: 'bg-stone-200', text: 'text-stone-950', border: 'border-amber-800', badge: 'bg-amber-800 text-white' },
   Hada: { bg: 'bg-pink-100', text: 'text-pink-900', border: 'border-pink-600', badge: 'bg-pink-500 text-white' }
 };
 

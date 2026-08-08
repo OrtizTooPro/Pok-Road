@@ -19,6 +19,7 @@ import { TeamView } from './components/game/TeamView';
 import { CareerTimeline } from './components/game/CareerTimeline';
 import { FinalTrainerCard } from './components/game/FinalTrainerCard';
 import { KantoPokedexView } from './components/game/KantoPokedexView';
+import { BackpackView } from './components/game/BackpackView';
 
 const GameMainContent: React.FC = () => {
   const { state } = useGame();
@@ -58,6 +59,13 @@ const GameMainContent: React.FC = () => {
       {state.activeTab === 'team' && (
         <div className="animate-fade-in">
           <TeamView />
+        </div>
+      )}
+
+      {/* Mochila View */}
+      {state.activeTab === 'inventory' && (
+        <div className="animate-fade-in">
+          <BackpackView />
         </div>
       )}
 

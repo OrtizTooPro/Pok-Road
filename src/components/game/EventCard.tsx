@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useGame } from '../../context/GameContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, Trophy, Lock, Zap, HelpCircle, X, Info, Crown, ShieldAlert, ShieldCheck, ShoppingCart } from 'lucide-react';
+import { MapPin, Trophy, Lock, Zap, HelpCircle, X, Info, Crown, ShieldAlert, ShieldCheck, ShoppingCart, Sparkles, ShoppingBag, HeartHandshake } from 'lucide-react';
 import { evaluateLeaderMatchup } from '../../utils/typeChart';
 import { normalizePokemonReward } from '../../utils/pokemonEvolution';
 import { findPokemonByName } from '../../data/kantoPokedex';
@@ -20,8 +20,9 @@ interface RewardExplanation {
 }
 
 export const EventCard: React.FC = () => {
-  const { currentEvent, selectOption, state, openModal } = useGame();
+  const { currentEvent, selectOption, state, openModal, healTeamAtCenter, setActiveTab } = useGame();
   const [activeExplanation, setActiveExplanation] = useState<RewardExplanation | null>(null);
+  const [healNotice, setHealNotice] = useState<string | null>(null);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   if (!currentEvent) return null;
@@ -139,6 +140,89 @@ export const EventCard: React.FC = () => {
             {currentEvent.description}
           </p>
         </div>
+
+        {/* Team Fatigue & Pokemon Center Healing Banner */}
+        <div className={`p-3 rounded-lg border-2 font-mono flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md transition-colors ${
+          (state.teamFatigue || 0) >= 75
+            ? 'bg-red-950 text-red-100 border-red-500'
+            : (state.teamFatigue || 0) >= 40
+            ? 'bg-amber-950 text-amber-100 border-amber-500'
+            : 'bg-emerald-950 text-emerald-100 border-emerald-500'
+        }`}>
+          <div className="flex items-center space-x-3 min-w-0">
+            <div className={`w-10 h-10 rounded-lg border-2 border-gray-900 flex items-center justify-center shrink-0 shadow ${
+              (state.teamFatigue || 0) >= 75 
+                ? 'bg-red-500 text-white animate-pulse' 
+                : (state.teamFatigue || 0) >= 40 
+                ? 'bg-amber-400 text-gray-950' 
+                : 'bg-emerald-400 text-gray-950'
+            }`}>
+              <Zap className="w-6 h-6 fill-current" />
+            </div>
+            <div className="min-w-0 space-y-1">
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-black uppercase text-white tracking-wide">FATIGA DEL EQUIPO</span>
+                <span className="text-xs font-black px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-yellow-300">
+                  {state.teamFatigue || 0}%
+                </span>
+              </div>
+              {/* Progress Bar */}
+              <div className="w-full sm:w-44 h-2 bg-gray-900 rounded-full overflow-hidden border border-gray-700">
+                <div 
+                  className={`h-full transition-all duration-500 ${
+                    (state.teamFatigue || 0) >= 75 ? 'bg-red-500' : (state.teamFatigue || 0) >= 40 ? 'bg-amber-400' : 'bg-emerald-400'
+                  }`}
+                  style={{ width: `${Math.min(100, state.teamFatigue || 0)}%` }}
+                />
+              </div>
+              <div className="text-[10px] font-sans font-bold">
+                {(state.teamFatigue || 0) >= 75 ? (
+                  <span className="text-red-300">⚠️ ¡Agotamiento Severo! (-20 Habilidad en Combate)</span>
+                ) : (state.teamFatigue || 0) >= 40 ? (
+                  <span className="text-amber-200">⚡ Fatiga Moderada (-10 Habilidad en Combate)</span>
+                ) : (
+                  <span className="text-emerald-200">✨ Equipo descansado y al 100% de efectividad.</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <button
+              onClick={() => {
+                healTeamAtCenter();
+                setHealNotice('🏥 ¡Enfermera Joy ha curado a tu equipo Pokémon al 100%! Fatiga restablecida al 0%.');
+                setTimeout(() => setHealNotice(null), 4000);
+              }}
+              className="px-3 py-1.5 bg-cyan-400 hover:bg-cyan-300 text-gray-950 font-black text-xs uppercase rounded-lg border-2 border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 cursor-pointer flex items-center space-x-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-gray-950 shrink-0" />
+              <span>Centro Pokémon</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('inventory')}
+              className="px-2.5 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-black text-xs uppercase rounded-lg border-2 border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 cursor-pointer flex items-center space-x-1"
+            >
+              <ShoppingBag className="w-3.5 h-3.5 text-gray-950 shrink-0" />
+              <span>Mochila</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Healing Feedback Banner */}
+        <AnimatePresence>
+          {healNotice && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="bg-cyan-400 border-2 border-gray-900 rounded-lg p-2.5 text-gray-950 font-black text-xs flex items-center space-x-2 shadow-lg"
+            >
+              <HeartHandshake className="w-5 h-5 text-gray-950 shrink-0 animate-bounce" />
+              <span>{healNotice}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Shop Availability Banner */}
         {shopInfo.isAvailable && (

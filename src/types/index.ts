@@ -92,6 +92,8 @@ export interface OptionChoice {
   specializationBonusText?: string;
   awardBadgeId?: string;
   addPokemon?: Omit<PokemonMember, 'id'>;
+  addItemId?: string;
+  addItemQty?: number;
   evolveStarter?: boolean;
   evolveTeamIndex?: number;
   triggerNextEventId?: string;
@@ -149,13 +151,14 @@ export type CareerLegacyTier =
   | 'Campeón Regional' 
   | '¡LEYENDA DEL SALÓN DE LA FAMA!';
 
-export type NavigationTab = 'summary_badges' | 'challenge_timeline' | 'team' | 'pokedex';
+export type NavigationTab = 'summary_badges' | 'challenge_timeline' | 'team' | 'pokedex' | 'inventory';
 
 export interface GameState {
   trainerName: string;
   avatarId: string;
   specialization: TrainerSpecialization;
   stats: TrainerStats;
+  teamFatigue: number; // 0 to 100% (0% = Descansado, 100% = Agotado)
   career: CareerMetrics;
   historyLog: CareerLogEntry[];
   activeEvents: GameEvent[]; // Dynamic event deck including unlocked chained events
@@ -167,6 +170,8 @@ export interface GameState {
     title: string;
     description: string;
     statChanges: { stat: string; delta: number; label: string }[];
+    fatigueDelta?: number;
+    newFatigue?: number;
     badgeAwarded?: Badge;
     pokemonAwarded?: PokemonMember;
     sentToPC?: boolean;
@@ -174,6 +179,14 @@ export interface GameState {
     newAchievements?: string[];
     chainedEventUnlockedTitle?: string;
     expSummary?: TeamExpSummary;
+    catchNotice?: {
+      hasBall: boolean;
+      usedBallName?: string;
+      usedBallIcon?: string;
+      catchChance?: number;
+      captured: boolean;
+      message: string;
+    };
     typeMatchupNotice?: {
       label: string;
       description: string;

@@ -36,10 +36,11 @@ export const ShopModal: React.FC = () => {
   const location = currentEvent?.location || 'Kanto';
   const eventTitle = currentEvent?.title || '';
   const eventDesc = currentEvent?.description || '';
+  const eventId = currentEvent?.id;
 
   const shopAvailability = checkShopAvailability(location, eventTitle, eventDesc);
   const currentAge = state.career.age || 10;
-  const availableItems = getShopStockForEvent(currentAge, location, eventTitle, eventDesc);
+  const availableItems = getShopStockForEvent(currentAge, location, eventTitle, eventDesc, eventId);
 
   const filteredShopItems = availableItems.filter(item => {
     if (selectedCategory === 'ALL') return true;
@@ -186,6 +187,19 @@ export const ShopModal: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
+                  {/* Restock Announcement Banner */}
+                  <div className="bg-emerald-950/80 border border-emerald-500/60 rounded-lg px-3 py-2 text-xs text-emerald-200 flex items-center justify-between font-sans">
+                    <div className="flex items-center space-x-2">
+                      <Sparkles className="w-4 h-4 text-yellow-400 shrink-0 animate-pulse" />
+                      <span>
+                        <strong>Stock renovado para este evento:</strong> Suministros equilibrados para {shopAvailability.shopName}.
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono bg-emerald-900 border border-emerald-600 px-2 py-0.5 rounded text-yellow-300 shrink-0 font-bold">
+                      {availableItems.length} Objetos en Estante
+                    </span>
+                  </div>
+
                   {/* Category Pills */}
                   <div className="flex items-center space-x-1.5 overflow-x-auto touch-scroll no-scrollbar pb-1">
                     {categoryLabels.map((cat) => (
@@ -218,8 +232,17 @@ export const ShopModal: React.FC = () => {
                         return (
                           <div
                             key={item.id}
-                            className="bg-gray-800/90 border-2 border-gray-700 rounded-lg p-3 flex flex-col justify-between hover:border-gray-500 transition-colors shadow-sm"
+                            className={`bg-gray-800/90 border-2 rounded-lg p-3 flex flex-col justify-between hover:border-gray-500 transition-colors shadow-sm relative overflow-hidden ${
+                              item.isFeatured ? 'border-amber-400/80 bg-gray-800' : 'border-gray-700'
+                            }`}
                           >
+                            {item.eventNote && (
+                              <div className="bg-amber-400 text-gray-950 font-black text-[9px] px-2 py-0.5 uppercase tracking-wide border-b border-gray-900 flex items-center space-x-1 -mx-3 -mt-3 mb-2">
+                                <Sparkles className="w-3 h-3 text-gray-950 shrink-0" />
+                                <span>{item.eventNote}</span>
+                              </div>
+                            )}
+
                             <div className="flex items-start space-x-2.5">
                               {/* Item Sprite */}
                               <div className="w-10 h-10 rounded bg-gray-900 border border-gray-700 p-1 flex items-center justify-center shrink-0">
@@ -240,7 +263,7 @@ export const ShopModal: React.FC = () => {
                                     {item.name}
                                   </h4>
                                   {ownedQty > 0 && (
-                                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-gray-700 text-emerald-400 border border-gray-600">
+                                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-gray-700 text-emerald-400 border border-gray-600 shrink-0">
                                       En posesión: {ownedQty}
                                     </span>
                                   )}
@@ -252,8 +275,13 @@ export const ShopModal: React.FC = () => {
                             </div>
 
                             <div className="mt-2.5 pt-2 border-t border-gray-700 flex items-center justify-between">
-                              <div className="text-xs font-black text-emerald-400 flex items-center">
-                                ${item.price.toLocaleString()}
+                              <div className="text-xs font-black text-emerald-400 flex items-center space-x-1.5">
+                                <span>${item.price.toLocaleString()}</span>
+                                {item.originalPrice && (
+                                  <span className="text-[10px] text-gray-400 line-through font-normal">
+                                    ${item.originalPrice.toLocaleString()}
+                                  </span>
+                                )}
                               </div>
 
                               <button

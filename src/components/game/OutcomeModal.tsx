@@ -82,6 +82,35 @@ export const OutcomeModal: React.FC = () => {
               </div>
             )}
 
+            {/* Poké Ball Catch Notice */}
+            {state.lastOutcome.catchNotice && (
+              <div className={`p-3 rounded-md border-2 shadow-sm font-sans text-xs ${
+                state.lastOutcome.catchNotice.captured
+                  ? 'bg-emerald-50 border-emerald-600 text-emerald-950'
+                  : state.lastOutcome.catchNotice.hasBall
+                  ? 'bg-amber-50 border-amber-600 text-amber-950'
+                  : 'bg-red-50 border-red-600 text-red-950'
+              }`}>
+                <div className="flex items-start space-x-2.5 font-mono">
+                  <div className="text-xl shrink-0 mt-0.5">
+                    {state.lastOutcome.catchNotice.usedBallIcon || (state.lastOutcome.catchNotice.captured ? '🔴' : '⚠️')}
+                  </div>
+                  <div>
+                    <span className="font-black uppercase text-[10px] tracking-wide block">
+                      {state.lastOutcome.catchNotice.captured 
+                        ? '¡CAPTURADO CON ÉXITO!' 
+                        : state.lastOutcome.catchNotice.hasBall 
+                        ? '¡EL POKÉMON HUYÓ!' 
+                        : 'SIN POKÉ BALLS EN MOCHILA'}
+                    </span>
+                    <p className="font-bold text-xs mt-0.5 leading-tight">
+                      {state.lastOutcome.catchNotice.message}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {pokemonAwarded && (
               <div className={`p-3 rounded-md border-2 flex items-center space-x-3 shadow-sm ${
                 state.lastOutcome.sentToPC 
@@ -162,6 +191,33 @@ export const OutcomeModal: React.FC = () => {
                 <span className="text-[10px] font-bold text-right max-w-[190px] leading-tight">
                   {state.lastOutcome.typeMatchupNotice.description}
                 </span>
+              </div>
+            )}
+
+            {/* Fatigue Change Notice */}
+            {state.lastOutcome.fatigueDelta !== undefined && (
+              <div className="p-3 rounded-md bg-amber-50 border-2 border-amber-600 flex items-center justify-between shadow-sm text-xs font-mono">
+                <div className="flex items-center space-x-2.5">
+                  <Zap className="w-5 h-5 text-amber-600 fill-amber-300 shrink-0" />
+                  <div>
+                    <span className="font-black uppercase text-[10px] tracking-wide text-amber-950 block">FATIGA ACUMULADA DEL EQUIPO</span>
+                    <span className="font-extrabold text-xs text-amber-900">
+                      +{state.lastOutcome.fatigueDelta}% en este evento
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] font-bold text-gray-600 block">NIVEL TOTAL</span>
+                  <span className={`text-xs font-black px-2 py-0.5 rounded border border-gray-900 ${
+                    (state.lastOutcome.newFatigue || 0) >= 75
+                      ? 'bg-red-600 text-white'
+                      : (state.lastOutcome.newFatigue || 0) >= 40
+                      ? 'bg-amber-400 text-gray-950'
+                      : 'bg-emerald-400 text-gray-950'
+                  }`}>
+                    {state.lastOutcome.newFatigue || 0}%
+                  </span>
+                </div>
               </div>
             )}
 

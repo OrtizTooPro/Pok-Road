@@ -1408,8 +1408,10 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
         id: 'opt-bc-a',
         text: 'Demostrar la velocidad de tu equipo en un combate rápido.',
         statRequirements: { skill: 25 },
-        outcomeText: 'Superas velozmente a sus Butterfree. Impresionado, el Cazabichos te regala una Malla Ball.',
+        outcomeText: 'Superas velozmente a sus Butterfree. Impresionado, el Cazabichos te regala una Veloz Ball.',
         statEffects: { skill: 8, money: 600 },
+        addItemId: 'quick-ball',
+        addItemQty: 1,
         isVictory: true
       },
       {
@@ -1601,6 +1603,36 @@ export const EXPANDED_REGIONAL_EVENTS: GameEvent[] = [
         statRequirements: { stamina: 40 },
         outcomeText: 'Consigues los planos para detectar fantasmas y escapas antes de que den la alarma.',
         statEffects: { skill: 15, reputation: 15 }
+      }
+    ]
+  },
+  {
+    id: 'event-branch-silph-co-azafran',
+    title: 'Liberación de Silph S.A. en Ciudad Azafrán: Duelo contra Giovanni',
+    category: 'VILLAIN_TEAM',
+    age: 16,
+    location: 'Silph S.A. - Planta Presidencial (Ciudad Azafrán)',
+    description: 'El Team Rocket ha tomado el rascacielos de Silph S.A. en Ciudad Azafrán. Giovanni, el temible líder del Team Rocket, acorrala al Presidente de la compañía para apoderarse del prototipo secreto de la Poké Ball infalible.',
+    options: [
+      {
+        id: 'opt-silph-giovanni-a',
+        text: 'Enfrentar directamente a Giovanni en un combate decisivo por el control de Silph S.A.',
+        statRequirements: { skill: 50 },
+        outcomeText: '¡DERROTAS A GIOVANNI! Tras un intenso combate, Giovanni huye jurando venganza. El agradecido Presidente de Silph S.A. te entrega personalmente el prototipo definitivo: ¡1x Master Ball!',
+        statEffects: { skill: 25, reputation: 35, money: 6000 },
+        addItemId: 'master-ball',
+        addItemQty: 1,
+        isVictory: true
+      },
+      {
+        id: 'opt-silph-giovanni-b',
+        text: 'Sabotear las líneas de suministro del rascacielos acorralando al Team Rocket.',
+        statRequirements: { stamina: 50 },
+        outcomeText: 'Irrumpes en el despacho presidencial obligando a Giovanni a huir. El Presidente de Silph S.A. te recompensa con la legendaria ¡1x Master Ball!',
+        statEffects: { stamina: 22, reputation: 30, money: 5000 },
+        addItemId: 'master-ball',
+        addItemQty: 1,
+        isVictory: true
       }
     ]
   },

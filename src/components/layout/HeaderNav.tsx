@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGame } from '../../context/GameContext';
-import { Volume2, VolumeX, Award, Sword, BookOpen, UserCheck, Home, ShoppingCart } from 'lucide-react';
+import { Volume2, VolumeX, Award, Sword, BookOpen, UserCheck, Home, ShoppingCart, ShoppingBag, Zap } from 'lucide-react';
 import { NavigationTab } from '../../types';
 import { checkShopAvailability } from '../../data/kantoItems';
 
@@ -17,6 +17,7 @@ export const HeaderNav: React.FC = () => {
     { id: 'summary_badges', label: 'Resumen y Medallas', icon: <UserCheck className="w-3.5 h-3.5" /> },
     { id: 'challenge_timeline', label: 'Desafío y Decisión', icon: <Award className="w-3.5 h-3.5" /> },
     { id: 'team', label: 'Equipo Pokémon', icon: <Sword className="w-3.5 h-3.5" /> },
+    { id: 'inventory', label: 'Mochila', icon: <ShoppingBag className="w-3.5 h-3.5 text-yellow-300 fill-yellow-300/20" /> },
     { id: 'pokedex', label: 'Pokédex Kanto (151)', icon: <BookOpen className="w-3.5 h-3.5" /> }
   ];
 
@@ -64,6 +65,25 @@ export const HeaderNav: React.FC = () => {
 
         {/* Right: Action Controls */}
         <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0 z-10">
+          {state.isGameStarted && (
+            <button
+              onClick={() => setActiveTab('inventory')}
+              title={`Fatiga del Equipo: ${state.teamFatigue || 0}%. Haz clic para ver la Mochila.`}
+              className={`px-2 sm:px-2.5 py-1 text-xs font-black rounded-md border-2 border-gray-900 flex items-center space-x-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] cursor-pointer shrink-0 transition-all ${
+                (state.teamFatigue || 0) >= 70
+                  ? 'bg-red-500 text-white animate-bounce'
+                  : (state.teamFatigue || 0) >= 40
+                  ? 'bg-amber-400 text-gray-950'
+                  : 'bg-emerald-400 text-gray-950'
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5 fill-current" />
+              <span className="text-[10px] sm:text-[11px] font-black uppercase">
+                Fatiga {state.teamFatigue || 0}%
+              </span>
+            </button>
+          )}
+
           {state.isGameStarted && (
             <button
               onClick={() => openModal('shop')}
