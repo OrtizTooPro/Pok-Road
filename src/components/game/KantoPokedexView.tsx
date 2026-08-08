@@ -4,6 +4,7 @@ import { getEvolutionFamily } from '../../data/kantoEvolutionLines';
 import { useGame } from '../../context/GameContext';
 import { Search, Sparkles, Filter, X, Eye, EyeOff, CheckCircle, BookOpen, Lock, Shield, Sword, GitFork } from 'lucide-react';
 import { TypeChartModal } from './TypeChartModal';
+import { getWeaknessesAndResistances, getOffensiveEffectiveness } from '../../utils/typeChart';
 
 const TYPE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   Planta: { bg: 'bg-emerald-100', text: 'text-emerald-950', border: 'border-emerald-600' },
@@ -22,7 +23,8 @@ const TYPE_COLORS: Record<string, { bg: string; text: string; border: string }> 
   Acero: { bg: 'bg-slate-200', text: 'text-slate-900', border: 'border-slate-600' },
   Hielo: { bg: 'bg-cyan-100', text: 'text-cyan-950', border: 'border-cyan-600' },
   Fantasma: { bg: 'bg-violet-200', text: 'text-violet-950', border: 'border-violet-700' },
-  Dragón: { bg: 'bg-teal-200', text: 'text-teal-950', border: 'border-teal-700' }
+  Dragón: { bg: 'bg-teal-200', text: 'text-teal-950', border: 'border-teal-700' },
+  Siniestro: { bg: 'bg-slate-800', text: 'text-slate-100', border: 'border-slate-900' }
 };
 
 export const KantoPokedexView: React.FC = () => {
@@ -401,6 +403,97 @@ export const KantoPokedexView: React.FC = () => {
                       <span>{selectedPokemon.weight}</span>
                     </div>
                   </div>
+
+                  {/* Weaknesses, Resistances & Type Effectiveness */}
+                  {(() => {
+                    const { weaknesses, resistances, immunities } = getWeaknessesAndResistances(selectedPokemon.types.join(' / '));
+                    const superEffAttack = [...getOffensiveEffectiveness(selectedPokemon.types[0]).superEffective];
+                    if (selectedPokemon.types[1]) {
+                      const secondEff = getOffensiveEffectiveness(selectedPokemon.types[1]).superEffective;
+                      secondEff.forEach(t => {
+                        if (!superEffAttack.includes(t)) superEffAttack.push(t);
+                      });
+                    }
+
+                    return (
+                      <div className="bg-slate-900 text-white border-2 border-gray-900 rounded-md p-3 space-y-2 shadow-xs">
+                        <div className="flex items-center justify-between border-b border-gray-700 pb-1.5">
+                          <span className="text-xs font-black uppercase text-yellow-400 flex items-center gap-1.5">
+                            <Shield className="w-4 h-4 text-yellow-400" />
+                            TABLA DE EFECTIVIDAD Y DEBILIDADES ({selectedPokemon.types.join(' / ').toUpperCase()})
+                          </span>
+                        </div>
+
+                        <div className="space-y-2 text-xs font-bold">
+                          <div>
+                            <span className="text-[10px] text-red-400 uppercase font-black block mb-1">
+                              ⚠️ DEBILIDADES (RECIBE DAÑO x2):
+                            </span>
+                            <div className="flex flex-wrap gap-1">
+                              {weaknesses.length > 0 ? (
+                                weaknesses.map(t => (
+                                  <span key={t} className="px-1.5 py-0.5 bg-red-900/90 text-red-100 border border-red-500 rounded text-[10px] uppercase font-black">
+                                    {t}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-gray-400 italic text-[10px]">Ninguna</span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div>
+                            <span className="text-[10px] text-emerald-400 uppercase font-black block mb-1">
+                              🛡️ RESISTENCIAS (RECIBE DAÑO x0.5):
+                            </span>
+                            <div className="flex flex-wrap gap-1">
+                              {resistances.length > 0 ? (
+                                resistances.map(t => (
+                                  <span key={t} className="px-1.5 py-0.5 bg-emerald-900/90 text-emerald-100 border border-emerald-500 rounded text-[10px] uppercase font-black">
+                                    {t}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-gray-400 italic text-[10px]">Ninguna</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {immunities.length > 0 && (
+                            <div>
+                              <span className="text-[10px] text-purple-300 uppercase font-black block mb-1">
+                                ✨ INMUNIDADES (RECIBE DAÑO x0):
+                              </span>
+                              <div className="flex flex-wrap gap-1">
+                                {immunities.map(t => (
+                                  <span key={t} className="px-1.5 py-0.5 bg-purple-900/90 text-purple-100 border border-purple-400 rounded text-[10px] uppercase font-black">
+                                    {t}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          <div>
+                            <span className="text-[10px] text-amber-300 uppercase font-black block mb-1">
+                              ⚔️ VENTAJA OFENSIVA DE TIPO (CAUSA DAÑO x2 A):
+                            </span>
+                            <div className="flex flex-wrap gap-1">
+                              {superEffAttack.length > 0 ? (
+                                superEffAttack.map(t => (
+                                  <span key={t} className="px-1.5 py-0.5 bg-amber-500 text-gray-950 font-black rounded text-[10px] uppercase">
+                                    {t}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-gray-400 italic text-[10px]">Ninguno</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* Official Base Stats (Pokédex Kanto) */}
                   <div className="bg-slate-50 border-2 border-gray-900 rounded-md p-3 space-y-2 shadow-xs">

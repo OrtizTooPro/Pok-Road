@@ -1,85 +1,106 @@
 import { PokemonMember, GameEvent } from '../types';
 
 export type PokemonType = 
-  | 'Normal'
-  | 'Fuego'
+  | 'Acero'
   | 'Agua'
-  | 'Planta'
+  | 'Bicho'
+  | 'Dragón'
   | 'Eléctrico'
+  | 'Fantasma'
+  | 'Fuego'
+  | 'Hada'
   | 'Hielo'
   | 'Lucha'
-  | 'Veneno'
-  | 'Tierra'
-  | 'Volador'
+  | 'Normal'
+  | 'Planta'
   | 'Psíquico'
-  | 'Bicho'
   | 'Roca'
-  | 'Fantasma'
-  | 'Dragón'
-  | 'Acero'
-  | 'Sonido'
   | 'Siniestro'
-  | 'Hada';
+  | 'Tierra'
+  | 'Veneno'
+  | 'Volador';
 
-// Matrix of attacker vs defender type effectiveness
+// Official Matrix of attacker vs defender type effectiveness
 // Key: AttackerType -> DefenderType -> Multiplier (0, 0.5, 1, 2)
 const TYPE_MATRIX: Record<string, Record<string, number>> = {
   Acero: {
-    Acero: 0.5, Agua: 0.5, Eléctrico: 0.5, Fuego: 0.5, Hada: 2.0, Hielo: 2.0, Roca: 2.0
+    Hada: 2.0, Hielo: 2.0, Roca: 2.0,
+    Acero: 0.5, Agua: 0.5, Eléctrico: 0.5, Fuego: 0.5
   },
   Agua: {
-    Agua: 0.5, Dragón: 0.5, Fuego: 2.0, Planta: 0.5, Roca: 2.0, Tierra: 2.0
+    Fuego: 2.0, Roca: 2.0, Tierra: 2.0,
+    Agua: 0.5, Dragón: 0.5, Planta: 0.5
   },
   Bicho: {
-    Acero: 0.5, Fantasma: 0.5, Fuego: 0.5, Hada: 0.5, Lucha: 0.5, Planta: 2.0, Psíquico: 2.0, Sonido: 2.0, Veneno: 0.5, Volador: 0.5
+    Planta: 2.0, Psíquico: 2.0, Siniestro: 2.0,
+    Acero: 0.5, Fantasma: 0.5, Fuego: 0.5, Hada: 0.5, Lucha: 0.5, Veneno: 0.5, Volador: 0.5
   },
   Dragón: {
-    Acero: 0.5, Dragón: 2.0, Hada: 0.0
+    Dragón: 2.0,
+    Acero: 0.5,
+    Hada: 0.0
   },
   Eléctrico: {
-    Agua: 2.0, Dragón: 0.5, Eléctrico: 0.5, Planta: 0.5, Tierra: 0.0, Volador: 2.0
+    Agua: 2.0, Volador: 2.0,
+    Dragón: 0.5, Eléctrico: 0.5, Planta: 0.5,
+    Tierra: 0.0
   },
   Fantasma: {
-    Fantasma: 2.0, Normal: 0.0, Psíquico: 2.0, Sonido: 0.5
+    Fantasma: 2.0, Psíquico: 2.0,
+    Siniestro: 0.5,
+    Normal: 0.0
   },
   Fuego: {
-    Acero: 2.0, Agua: 0.5, Bicho: 2.0, Dragón: 0.5, Fuego: 0.5, Hielo: 2.0, Planta: 2.0, Roca: 0.5
+    Acero: 2.0, Bicho: 2.0, Hielo: 2.0, Planta: 2.0,
+    Agua: 0.5, Dragón: 0.5, Fuego: 0.5, Roca: 0.5
   },
   Hada: {
-    Acero: 0.5, Dragón: 2.0, Fuego: 0.5, Lucha: 2.0, Sonido: 2.0, Veneno: 0.5
+    Dragón: 2.0, Lucha: 2.0, Siniestro: 2.0,
+    Acero: 0.5, Fuego: 0.5, Veneno: 0.5
   },
   Hielo: {
-    Acero: 0.5, Agua: 0.5, Dragón: 2.0, Fuego: 0.5, Hielo: 0.5, Planta: 2.0, Tierra: 2.0, Volador: 2.0
+    Dragón: 2.0, Planta: 2.0, Tierra: 2.0, Volador: 2.0,
+    Acero: 0.5, Agua: 0.5, Fuego: 0.5, Hielo: 0.5
   },
   Lucha: {
-    Acero: 2.0, Bicho: 0.5, Fantasma: 0.0, Hada: 0.5, Hielo: 2.0, Normal: 2.0, Psíquico: 0.5, Roca: 2.0, Sonido: 2.0, Veneno: 0.5, Volador: 0.5
+    Acero: 2.0, Hielo: 2.0, Normal: 2.0, Roca: 2.0, Siniestro: 2.0,
+    Bicho: 0.5, Hada: 0.5, Psíquico: 0.5, Veneno: 0.5, Volador: 0.5,
+    Fantasma: 0.0
   },
   Normal: {
-    Acero: 0.5, Fantasma: 0.0, Roca: 0.5
+    Acero: 0.5, Roca: 0.5,
+    Fantasma: 0.0
   },
   Planta: {
-    Acero: 0.5, Agua: 2.0, Bicho: 0.5, Dragón: 0.5, Fuego: 0.5, Planta: 0.5, Roca: 2.0, Tierra: 2.0, Veneno: 0.5, Volador: 0.5
+    Agua: 2.0, Roca: 2.0, Tierra: 2.0,
+    Acero: 0.5, Bicho: 0.5, Dragón: 0.5, Fuego: 0.5, Planta: 0.5, Veneno: 0.5, Volador: 0.5
   },
   Psíquico: {
-    Acero: 0.5, Lucha: 2.0, Psíquico: 0.5, Sonido: 0.0, Veneno: 2.0
+    Lucha: 2.0, Veneno: 2.0,
+    Acero: 0.5, Psíquico: 0.5,
+    Siniestro: 0.0
   },
   Roca: {
-    Acero: 0.5, Bicho: 2.0, Fuego: 2.0, Hielo: 2.0, Lucha: 0.5, Tierra: 0.5, Volador: 2.0
-  },
-  Sonido: {
-    Fantasma: 2.0, Hada: 0.5, Lucha: 0.5, Psíquico: 2.0, Sonido: 0.5
-  },
-  Tierra: {
-    Acero: 2.0, Bicho: 0.5, Eléctrico: 2.0, Fuego: 2.0, Planta: 0.5, Roca: 2.0, Veneno: 2.0, Volador: 0.0
-  },
-  Veneno: {
-    Acero: 0.0, Fantasma: 0.5, Hada: 2.0, Planta: 2.0, Roca: 0.5, Tierra: 0.5, Veneno: 0.5
-  },
-  Volador: {
-    Acero: 0.5, Bicho: 2.0, Eléctrico: 0.5, Lucha: 2.0, Planta: 2.0, Roca: 0.5
+    Bicho: 2.0, Fuego: 2.0, Hielo: 2.0, Volador: 2.0,
+    Acero: 0.5, Lucha: 0.5, Tierra: 0.5
   },
   Siniestro: {
-    Lucha: 0.5, Psíquico: 2.0, Fantasma: 2.0, Siniestro: 0.5, Hada: 0.5
+    Fantasma: 2.0, Psíquico: 2.0,
+    Hada: 0.5, Lucha: 0.5, Siniestro: 0.5
+  },
+  Tierra: {
+    Acero: 2.0, Eléctrico: 2.0, Fuego: 2.0, Roca: 2.0, Veneno: 2.0,
+    Bicho: 0.5, Planta: 0.5,
+    Volador: 0.0
+  },
+  Veneno: {
+    Hada: 2.0, Planta: 2.0,
+    Fantasma: 0.5, Roca: 0.5, Tierra: 0.5, Veneno: 0.5,
+    Acero: 0.0
+  },
+  Volador: {
+    Bicho: 2.0, Lucha: 2.0, Planta: 2.0,
+    Acero: 0.5, Eléctrico: 0.5, Roca: 0.5
   }
 };
 
@@ -93,25 +114,25 @@ export function parseTypes(typeStr: string): string[] {
     .map(t => t.trim())
     .filter(Boolean)
     .map(t => {
-      const lower = t.toLowerCase();
-      if (lower.includes('fuego')) return 'Fuego';
-      if (lower.includes('agua')) return 'Agua';
-      if (lower.includes('planta')) return 'Planta';
-      if (lower.includes('electr') || lower.includes('elect')) return 'Eléctrico';
-      if (lower.includes('hielo')) return 'Hielo';
-      if (lower.includes('lucha')) return 'Lucha';
-      if (lower.includes('veneno')) return 'Veneno';
-      if (lower.includes('tierra')) return 'Tierra';
-      if (lower.includes('volador')) return 'Volador';
-      if (lower.includes('psiq') || lower.includes('psíq')) return 'Psíquico';
-      if (lower.includes('bicho')) return 'Bicho';
-      if (lower.includes('roca')) return 'Roca';
-      if (lower.includes('fantasma')) return 'Fantasma';
-      if (lower.includes('drag')) return 'Dragón';
-      if (lower.includes('acero')) return 'Acero';
-      if (lower.includes('sonido')) return 'Sonido';
-      if (lower.includes('siniestro')) return 'Siniestro';
-      if (lower.includes('hada')) return 'Hada';
+      // Normalize to remove accents so "Eléctrico" matches "electr", "Dragón" matches "dragon", etc.
+      const clean = t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      if (clean.includes('fuego')) return 'Fuego';
+      if (clean.includes('agua')) return 'Agua';
+      if (clean.includes('planta')) return 'Planta';
+      if (clean.includes('electr') || clean.includes('elect')) return 'Eléctrico';
+      if (clean.includes('hielo')) return 'Hielo';
+      if (clean.includes('lucha')) return 'Lucha';
+      if (clean.includes('veneno')) return 'Veneno';
+      if (clean.includes('tierra')) return 'Tierra';
+      if (clean.includes('volador')) return 'Volador';
+      if (clean.includes('psiq') || clean.includes('psic')) return 'Psíquico';
+      if (clean.includes('bicho')) return 'Bicho';
+      if (clean.includes('roca')) return 'Roca';
+      if (clean.includes('fantasma')) return 'Fantasma';
+      if (clean.includes('dragon')) return 'Dragón';
+      if (clean.includes('acero')) return 'Acero';
+      if (clean.includes('siniestro')) return 'Siniestro';
+      if (clean.includes('hada')) return 'Hada';
       return 'Normal';
     });
 }
@@ -149,8 +170,9 @@ export function getWeaknessesAndResistances(typeStr: string): {
 } {
   const defenderTypes = parseTypes(typeStr);
   const allTypes: string[] = [
-    'Normal', 'Fuego', 'Agua', 'Planta', 'Eléctrico', 'Hielo', 'Lucha', 'Veneno',
-    'Tierra', 'Volador', 'Psíquico', 'Bicho', 'Roca', 'Fantasma', 'Dragón', 'Acero', 'Sonido', 'Siniestro', 'Hada'
+    'Acero', 'Agua', 'Bicho', 'Dragón', 'Eléctrico', 'Fantasma',
+    'Fuego', 'Hada', 'Hielo', 'Lucha', 'Normal', 'Planta',
+    'Psíquico', 'Roca', 'Siniestro', 'Tierra', 'Veneno', 'Volador'
   ];
 
   const weaknesses: string[] = [];
@@ -185,8 +207,9 @@ export function getOffensiveEffectiveness(typeStr: string): {
   noEffect: string[];
 } {
   const allTypes: string[] = [
-    'Normal', 'Fuego', 'Agua', 'Planta', 'Eléctrico', 'Hielo', 'Lucha', 'Veneno',
-    'Tierra', 'Volador', 'Psíquico', 'Bicho', 'Roca', 'Fantasma', 'Dragón', 'Acero', 'Sonido', 'Siniestro', 'Hada'
+    'Acero', 'Agua', 'Bicho', 'Dragón', 'Eléctrico', 'Fantasma',
+    'Fuego', 'Hada', 'Hielo', 'Lucha', 'Normal', 'Planta',
+    'Psíquico', 'Roca', 'Siniestro', 'Tierra', 'Veneno', 'Volador'
   ];
 
   const superEffective: string[] = [];

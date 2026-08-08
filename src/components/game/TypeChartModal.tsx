@@ -10,7 +10,7 @@ interface TypeChartModalProps {
 const KANTO_TYPES = [
   'Acero', 'Agua', 'Bicho', 'Dragón', 'Eléctrico', 'Fantasma',
   'Fuego', 'Hada', 'Hielo', 'Lucha', 'Normal', 'Planta',
-  'Psíquico', 'Roca', 'Sonido', 'Tierra', 'Veneno', 'Volador'
+  'Psíquico', 'Roca', 'Siniestro', 'Tierra', 'Veneno', 'Volador'
 ];
 
 const TYPE_COLORS: Record<string, { bg: string; text: string; border: string; badge: string }> = {
@@ -30,7 +30,7 @@ const TYPE_COLORS: Record<string, { bg: string; text: string; border: string; ba
   Fantasma: { bg: 'bg-violet-200', text: 'text-violet-950', border: 'border-violet-700', badge: 'bg-violet-800 text-white' },
   Dragón: { bg: 'bg-teal-200', text: 'text-teal-950', border: 'border-teal-700', badge: 'bg-teal-800 text-white' },
   Acero: { bg: 'bg-slate-200', text: 'text-slate-900', border: 'border-slate-600', badge: 'bg-slate-600 text-white' },
-  Sonido: { bg: 'bg-stone-200', text: 'text-stone-950', border: 'border-amber-800', badge: 'bg-amber-800 text-white' },
+  Siniestro: { bg: 'bg-slate-800', text: 'text-slate-100', border: 'border-slate-900', badge: 'bg-slate-900 text-white' },
   Hada: { bg: 'bg-pink-100', text: 'text-pink-900', border: 'border-pink-600', badge: 'bg-pink-500 text-white' }
 };
 
@@ -38,7 +38,8 @@ export const TypeChartModal: React.FC<TypeChartModalProps> = ({ isOpen, onClose 
   const [selectedAttacker, setSelectedAttacker] = useState<string>('Fuego');
   const [selectedDefender1, setSelectedDefender1] = useState<string>('Planta');
   const [selectedDefender2, setSelectedDefender2] = useState<string>('Ninguno');
-  const [activeTab, setActiveTab] = useState<'CALCULATOR' | 'MATRIX'>('CALCULATOR');
+  const [activeTab, setActiveTab] = useState<'OFFENSIVE' | 'CALCULATOR' | 'MATRIX'>('OFFENSIVE');
+  const [filterTypeSearch, setFilterTypeSearch] = useState<string>('');
 
   if (!isOpen) return null;
 
@@ -59,9 +60,13 @@ export const TypeChartModal: React.FC<TypeChartModalProps> = ({ isOpen, onClose 
 
   const badgeInfo = getMultiplierBadge(multiplier);
 
+  const filteredTypes = KANTO_TYPES.filter(t => 
+    t.toLowerCase().includes(filterTypeSearch.toLowerCase())
+  );
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in font-mono">
-      <div className="bg-white border-4 border-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl text-gray-900 relative">
+      <div className="bg-white border-4 border-gray-900 rounded-lg max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl text-gray-900 relative">
         {/* Header */}
         <div className="bg-red-600 text-white font-bold flex items-center justify-between px-4 py-3 border-b-4 border-gray-900 shrink-0">
           <div className="flex items-center space-x-2">
@@ -70,10 +75,10 @@ export const TypeChartModal: React.FC<TypeChartModalProps> = ({ isOpen, onClose 
             </div>
             <div>
               <h2 className="text-sm sm:text-base font-black uppercase tracking-wider text-white">
-                TABLA OFICIAL DE TIPOS POKÉMON (KANTO)
+                TABLA OFICIAL DE EFECTIVIDAD OFENSIVA POKÉMON
               </h2>
               <p className="text-[10px] text-red-100 font-sans font-semibold">
-                Efectividades, multiplicadores y debilidades de combate
+                Guía completa de tipos, debilidades, multiplicadores e inmunidades
               </p>
             </div>
           </div>
@@ -86,8 +91,19 @@ export const TypeChartModal: React.FC<TypeChartModalProps> = ({ isOpen, onClose 
         </div>
 
         {/* View Mode Tabs */}
-        <div className="bg-gray-100 border-b-2 border-gray-800 px-4 py-2 flex items-center justify-between gap-2 shrink-0">
-          <div className="flex items-center space-x-2">
+        <div className="bg-gray-100 border-b-2 border-gray-800 px-3 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
+          <div className="flex items-center space-x-1.5 sm:space-x-2">
+            <button
+              onClick={() => setActiveTab('OFFENSIVE')}
+              className={`px-3 py-1.5 rounded text-xs font-black uppercase border-2 transition-all flex items-center space-x-1.5 cursor-pointer ${
+                activeTab === 'OFFENSIVE'
+                  ? 'bg-yellow-400 text-gray-950 border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-gray-800'
+              }`}
+            >
+              <Sword className="w-3.5 h-3.5 text-red-700" />
+              <span>Tabla Oficial Ofensiva</span>
+            </button>
             <button
               onClick={() => setActiveTab('CALCULATOR')}
               className={`px-3 py-1.5 rounded text-xs font-black uppercase border-2 transition-all flex items-center space-x-1.5 cursor-pointer ${
@@ -97,7 +113,7 @@ export const TypeChartModal: React.FC<TypeChartModalProps> = ({ isOpen, onClose 
               }`}
             >
               <Zap className="w-3.5 h-3.5 text-amber-700" />
-              <span>Calculadora de Combate</span>
+              <span>Calculadora</span>
             </button>
             <button
               onClick={() => setActiveTab('MATRIX')}
@@ -111,11 +127,146 @@ export const TypeChartModal: React.FC<TypeChartModalProps> = ({ isOpen, onClose 
               <span>Matriz Resumen</span>
             </button>
           </div>
+
+          {activeTab === 'OFFENSIVE' && (
+            <input
+              type="text"
+              placeholder="Filtrar por tipo..."
+              value={filterTypeSearch}
+              onChange={(e) => setFilterTypeSearch(e.target.value)}
+              className="px-2.5 py-1 text-xs bg-white border-2 border-gray-800 rounded focus:outline-none focus:border-red-600 font-bold uppercase w-36 sm:w-48"
+            />
+          )}
         </div>
 
         {/* Modal Body */}
         <div className="p-4 overflow-y-auto touch-scroll flex-1 space-y-4">
-          {activeTab === 'CALCULATOR' ? (
+          {activeTab === 'OFFENSIVE' && (
+            <div className="space-y-3">
+              <div className="bg-amber-50 border-2 border-amber-600 p-2.5 rounded-md text-xs font-sans text-amber-950 font-bold flex items-center space-x-2">
+                <Info className="w-5 h-5 text-amber-700 shrink-0" />
+                <span>
+                  Lista oficial de efectividades ofensivas para cada tipo en combate. El multiplicador se aplica directamente al daño del ataque del Pokémon atacante contra los tipos defensores.
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {filteredTypes.map(attacker => {
+                  const superEffective = KANTO_TYPES.filter(t => getTypeEffectivenessMultiplier(attacker, t) >= 2.0);
+                  const notEffective = KANTO_TYPES.filter(t => {
+                    const mult = getTypeEffectivenessMultiplier(attacker, t);
+                    return mult < 1.0 && mult > 0;
+                  });
+                  const noEffect = KANTO_TYPES.filter(t => getTypeEffectivenessMultiplier(attacker, t) === 0);
+                  const neutralTypes = KANTO_TYPES.filter(t => getTypeEffectivenessMultiplier(attacker, t) === 1.0);
+                  const style = TYPE_COLORS[attacker] || { bg: 'bg-gray-100', text: 'text-gray-900', border: 'border-gray-600', badge: 'bg-gray-600 text-white' };
+
+                  return (
+                    <div
+                      key={attacker}
+                      className={`p-3 rounded-lg border-2 border-gray-900 bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] space-y-2 font-mono text-xs`}
+                    >
+                      {/* Attacker Header */}
+                      <div className="flex items-center justify-between pb-1.5 border-b-2 border-gray-800">
+                        <div className="flex items-center space-x-2">
+                          <span className={`px-2.5 py-0.5 rounded text-xs font-black uppercase ${style.badge}`}>
+                            {attacker}
+                          </span>
+                          <span className="text-[10px] text-gray-500 font-bold uppercase">(Ofensivo)</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedAttacker(attacker);
+                            setActiveTab('CALCULATOR');
+                          }}
+                          className="px-2 py-0.5 bg-yellow-400 hover:bg-yellow-300 text-gray-950 text-[10px] font-black uppercase rounded border border-gray-900 shadow-sm cursor-pointer"
+                        >
+                          Probar
+                        </button>
+                      </div>
+
+                      {/* Effectiveness List */}
+                      <div className="space-y-1.5 text-[11px] font-sans">
+                        {/* x2 */}
+                        <div className="flex items-start space-x-2 bg-emerald-50 p-1.5 rounded border border-emerald-300">
+                          <span className="px-1.5 py-0.5 bg-emerald-500 text-white font-black text-[10px] rounded shrink-0">
+                            x2
+                          </span>
+                          <div className="flex flex-wrap gap-1 font-extrabold text-emerald-950">
+                            {superEffective.length > 0 ? (
+                              superEffective.map(t => (
+                                <span key={t} className="px-1.5 py-0.2 bg-white border border-emerald-400 rounded text-[10px]">
+                                  {t}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-gray-400 italic font-medium">Ninguno</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* x0.5 */}
+                        <div className="flex items-start space-x-2 bg-amber-50 p-1.5 rounded border border-amber-300">
+                          <span className="px-1.5 py-0.5 bg-amber-500 text-gray-950 font-black text-[10px] rounded shrink-0">
+                            x0.5
+                          </span>
+                          <div className="flex flex-wrap gap-1 font-bold text-amber-950">
+                            {notEffective.length > 0 ? (
+                              notEffective.map(t => (
+                                <span key={t} className="px-1.5 py-0.2 bg-white border border-amber-400 rounded text-[10px]">
+                                  {t}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-gray-400 italic font-medium">Ninguno</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* x0 */}
+                        <div className="flex items-start space-x-2 bg-red-50 p-1.5 rounded border border-red-300">
+                          <span className="px-1.5 py-0.5 bg-red-600 text-white font-black text-[10px] rounded shrink-0">
+                            x0
+                          </span>
+                          <div className="flex flex-wrap gap-1 font-bold text-red-950">
+                            {noEffect.length > 0 ? (
+                              noEffect.map(t => (
+                                <span key={t} className="px-1.5 py-0.2 bg-white border border-red-400 rounded text-[10px]">
+                                  {t}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-gray-400 italic font-medium">— (Ninguno)</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* x1 Normal */}
+                        <div className="flex items-start space-x-2 bg-gray-50 p-1.5 rounded border border-gray-300">
+                          <span className="px-1.5 py-0.5 bg-slate-600 text-white font-black text-[10px] rounded shrink-0">
+                            x1
+                          </span>
+                          <div className="flex flex-wrap gap-1 font-semibold text-slate-800">
+                            {neutralTypes.length > 0 ? (
+                              neutralTypes.map(t => (
+                                <span key={t} className="px-1.5 py-0.2 bg-white border border-gray-300 rounded text-[10px]">
+                                  {t}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-gray-400 italic font-medium">Ninguno</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'CALCULATOR' && (
             <div className="space-y-4">
               {/* Calculator Selectors */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-50 p-3.5 border-2 border-gray-800 rounded-md">
@@ -241,11 +392,12 @@ export const TypeChartModal: React.FC<TypeChartModalProps> = ({ isOpen, onClose 
                 </div>
               </div>
             </div>
-          ) : (
-            /* Matrix View */
+          )}
+
+          {activeTab === 'MATRIX' && (
             <div className="space-y-3">
               <p className="text-xs font-sans text-gray-600 font-bold">
-                Selecciona un tipo para ver su desglose ofensivo y defensivo en la Pokedex de Kanto:
+                Selecciona un tipo para ver su desglose ofensivo y defensivo en Kanto:
               </p>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
