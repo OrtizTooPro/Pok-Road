@@ -1,13 +1,15 @@
 import React, { useState, useRef } from 'react';
 import { useGame } from '../../context/GameContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, Trophy, Lock, Zap, HelpCircle, X, Info, Crown, ShieldAlert, ShieldCheck, ShoppingCart, Sparkles, ShoppingBag, HeartHandshake } from 'lucide-react';
+import { MapPin, Trophy, Lock, Zap, HelpCircle, X, Info, Crown, ShieldAlert, ShieldCheck, ShoppingCart, Sparkles, ShoppingBag, HeartHandshake, Gamepad2 } from 'lucide-react';
 import { evaluateLeaderMatchup } from '../../utils/typeChart';
 import { normalizePokemonReward } from '../../utils/pokemonEvolution';
 import { findPokemonByName } from '../../data/kantoPokedex';
 import { checkShopAvailability } from '../../data/kantoItems';
 import { getBadgeById } from '../../data/badges';
 import { BadgeIcon } from './BadgeIcon';
+import { MinigameContainer } from '../minigames/MinigameContainer';
+import { OptionChoice } from '../../types';
 
 interface RewardExplanation {
   title: string;
@@ -23,9 +25,56 @@ export const EventCard: React.FC = () => {
   const { currentEvent, selectOption, state, openModal, healTeamAtCenter, setActiveTab } = useGame();
   const [activeExplanation, setActiveExplanation] = useState<RewardExplanation | null>(null);
   const [healNotice, setHealNotice] = useState<string | null>(null);
+  const [pendingMinigame, setPendingMinigame] = useState<{
+    option: OptionChoice;
+    eventType: 'capture' | 'combat';
+    enemyTeamCount: number;
+    combatWinChance: number;
+  } | null>(null);
+  const [practiceMinigame, setPracticeMinigame] = useState<boolean>(false);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   if (!currentEvent) return null;
+
+  const handleOptionSelect = (option: OptionChoice) => {
+    const isCapture = !!option.addPokemon || currentEvent.category === 'WILD_ENCOUNTER';
+    const isCombat = !!option.isVictory || currentEvent.category === 'GYM_BATTLE' || currentEvent.category === 'RIVAL_MATCH' || currentEvent.category === 'VILLAIN_TEAM' || currentEvent.category === 'LEAGUE_TOURNAMENT';
+
+    if (isCapture || isCombat) {
+      const eventType = isCapture ? 'capture' : 'combat';
+      let enemyTeamCount = 1;
+
+      if (eventType === 'combat') {
+        if (currentEvent.category === 'GYM_BATTLE') {
+          if (currentEvent.age <= 12) enemyTeamCount = 2; // Brock / Misty
+          else if (currentEvent.age <= 14) enemyTeamCount = 3; // Surge / Erika
+          else if (currentEvent.age <= 17) enemyTeamCount = 4; // Koga / Sabrina / Blaine
+          else enemyTeamCount = 5; // Giovanni
+        } else if (currentEvent.category === 'LEAGUE_TOURNAMENT') {
+          enemyTeamCount = 6;
+        } else if (currentEvent.category === 'RIVAL_MATCH') {
+          enemyTeamCount = Math.min(6, Math.max(2, Math.floor((currentEvent.age - 8) / 2)));
+        } else if (currentEvent.category === 'VILLAIN_TEAM') {
+          enemyTeamCount = 3;
+        } else {
+          enemyTeamCount = 2;
+        }
+      }
+
+      const leaderMon = state.career.team[0];
+      const matchup = leaderMon ? evaluateLeaderMatchup(leaderMon, currentEvent) : { skillBonus: 0 };
+      const winChance = Math.min(100, Math.max(10, state.stats.skill + matchup.skillBonus - (state.teamFatigue || 0) / 2));
+
+      setPendingMinigame({
+        option,
+        eventType,
+        enemyTeamCount,
+        combatWinChance: winChance
+      });
+    } else {
+      selectOption(option);
+    }
+  };
 
   const shopInfo = checkShopAvailability(currentEvent.location, currentEvent.title, currentEvent.description);
 
@@ -206,6 +255,7 @@ export const EventCard: React.FC = () => {
               <ShoppingBag className="w-3.5 h-3.5 text-gray-950 shrink-0" />
               <span>Mochila</span>
             </button>
+            
           </div>
         </div>
 
@@ -338,7 +388,7 @@ export const EventCard: React.FC = () => {
               <button
                 key={option.id}
                 disabled={isLocked}
-                onClick={() => selectOption(option)}
+                onClick={() => handleOptionSelect(option)}
                 className={`w-full text-left border-2 rounded-md p-3 font-bold transition-all relative flex flex-col justify-between ${
                   isLocked
                     ? 'bg-gray-100 border-gray-400 text-gray-500 cursor-not-allowed opacity-70'
@@ -713,6 +763,42 @@ export const EventCard: React.FC = () => {
       </div>
     )}
   </AnimatePresence>
+
+  {/* Active Minigame Modal */}
+  {pendingMinigame && (
+    <MinigameContainer
+      eventType={pendingMinigame.eventType}
+      eventTitle={currentEvent.title}
+      enemyTeamCount={pendingMinigame.enemyTeamCount}
+      teamSize={Math.max(1, state.career.team.length)}
+      combatWinChance={pendingMinigame.combatWinChance}
+      onSuccess={() => {
+        const opt = pendingMinigame.option;
+        setPendingMinigame(null);
+        selectOption({ ...opt, forceVictory: true });
+      }}
+      onDefeat={() => {
+        const opt = pendingMinigame.option;
+        setPendingMinigame(null);
+        selectOption({ ...opt, forceDefeat: true });
+      }}
+      onCancel={() => setPendingMinigame(null)}
+    />
+  )}
+
+  {/* Practice Minigame Modal */}
+  {practiceMinigame && (
+    <MinigameContainer
+      eventType="combat"
+      
+      enemyTeamCount={3}
+      teamSize={Math.max(1, state.career.team.length || 3)}
+      combatWinChance={75}
+      onSuccess={() => setPracticeMinigame(false)}
+      onDefeat={() => setPracticeMinigame(false)}
+      onCancel={() => setPracticeMinigame(false)}
+    />
+  )}
 </div>
   );
 };

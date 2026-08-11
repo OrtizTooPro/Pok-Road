@@ -101,6 +101,8 @@ export interface OptionChoice {
   chainedNotice?: string; // Optional preview notice of the chained event triggered
   isVictory?: boolean;
   isDefeat?: boolean;
+  forceVictory?: boolean;
+  forceDefeat?: boolean;
   daysDelta?: number; // Custom days spent for this option
 }
 

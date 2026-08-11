@@ -95,10 +95,8 @@ export const EVOLUTION_RULES: EvolutionRule[] = [
   { fromSpecies: 'Charmeleon', toSpecies: 'Charizard', minLevel: 36 },
   { fromSpecies: 'Squirtle', toSpecies: 'Wartortle', minLevel: 16 },
   { fromSpecies: 'Wartortle', toSpecies: 'Blastoise', minLevel: 36 },
-  { fromSpecies: 'Pikachu', toSpecies: 'Raichu', minLevel: 26 },
-  { fromSpecies: 'Eevee', toSpecies: 'Jolteon', minLevel: 25 },
 
-  // Route & Wild Kanto Pokemon
+  // Route & Wild Kanto Pokemon (Level Evolutions Only)
   { fromSpecies: 'Caterpie', toSpecies: 'Metapod', minLevel: 7 },
   { fromSpecies: 'Metapod', toSpecies: 'Butterfree', minLevel: 10 },
   { fromSpecies: 'Weedle', toSpecies: 'Kakuna', minLevel: 7 },
@@ -110,30 +108,21 @@ export const EVOLUTION_RULES: EvolutionRule[] = [
   { fromSpecies: 'Ekans', toSpecies: 'Arbok', minLevel: 22 },
   { fromSpecies: 'Sandshrew', toSpecies: 'Sandslash', minLevel: 22 },
   { fromSpecies: 'Nidoran♀', toSpecies: 'Nidorina', minLevel: 16 },
-  { fromSpecies: 'Nidorina', toSpecies: 'Nidoqueen', minLevel: 32 },
   { fromSpecies: 'Nidoran♂', toSpecies: 'Nidorino', minLevel: 16 },
-  { fromSpecies: 'Nidorino', toSpecies: 'Nidoking', minLevel: 32 },
-  { fromSpecies: 'Clefairy', toSpecies: 'Clefable', minLevel: 25 },
-  { fromSpecies: 'Vulpix', toSpecies: 'Ninetales', minLevel: 28 },
-  { fromSpecies: 'Jigglypuff', toSpecies: 'Wigglytuff', minLevel: 25 },
   { fromSpecies: 'Zubat', toSpecies: 'Golbat', minLevel: 22 },
   { fromSpecies: 'Oddish', toSpecies: 'Gloom', minLevel: 21 },
-  { fromSpecies: 'Gloom', toSpecies: 'Vileplume', minLevel: 36 },
   { fromSpecies: 'Paras', toSpecies: 'Parasect', minLevel: 24 },
   { fromSpecies: 'Venonat', toSpecies: 'Venomoth', minLevel: 31 },
   { fromSpecies: 'Diglett', toSpecies: 'Dugtrio', minLevel: 26 },
   { fromSpecies: 'Meowth', toSpecies: 'Persian', minLevel: 28 },
   { fromSpecies: 'Psyduck', toSpecies: 'Golduck', minLevel: 33 },
   { fromSpecies: 'Mankey', toSpecies: 'Primeape', minLevel: 28 },
-  { fromSpecies: 'Growlithe', toSpecies: 'Arcanine', minLevel: 30 },
   { fromSpecies: 'Poliwag', toSpecies: 'Poliwhirl', minLevel: 25 },
-  { fromSpecies: 'Poliwhirl', toSpecies: 'Poliwrath', minLevel: 38 },
   { fromSpecies: 'Abra', toSpecies: 'Kadabra', minLevel: 16 },
   { fromSpecies: 'Kadabra', toSpecies: 'Alakazam', minLevel: 38 },
   { fromSpecies: 'Machop', toSpecies: 'Machoke', minLevel: 28 },
   { fromSpecies: 'Machoke', toSpecies: 'Machamp', minLevel: 42 },
   { fromSpecies: 'Bellsprout', toSpecies: 'Weepinbell', minLevel: 21 },
-  { fromSpecies: 'Weepinbell', toSpecies: 'Victreebel', minLevel: 36 },
   { fromSpecies: 'Tentacool', toSpecies: 'Tentacruel', minLevel: 30 },
   { fromSpecies: 'Geodude', toSpecies: 'Graveler', minLevel: 25 },
   { fromSpecies: 'Graveler', toSpecies: 'Golem', minLevel: 40 },
@@ -143,19 +132,16 @@ export const EVOLUTION_RULES: EvolutionRule[] = [
   { fromSpecies: 'Doduo', toSpecies: 'Dodrio', minLevel: 31 },
   { fromSpecies: 'Seel', toSpecies: 'Dewgong', minLevel: 34 },
   { fromSpecies: 'Grimer', toSpecies: 'Muk', minLevel: 38 },
-  { fromSpecies: 'Shellder', toSpecies: 'Cloyster', minLevel: 30 },
   { fromSpecies: 'Gastly', toSpecies: 'Haunter', minLevel: 25 },
   { fromSpecies: 'Haunter', toSpecies: 'Gengar', minLevel: 40 },
   { fromSpecies: 'Drowzee', toSpecies: 'Hypno', minLevel: 26 },
   { fromSpecies: 'Krabby', toSpecies: 'Kingler', minLevel: 28 },
   { fromSpecies: 'Voltorb', toSpecies: 'Electrode', minLevel: 30 },
-  { fromSpecies: 'Exeggcute', toSpecies: 'Exeggutor', minLevel: 32 },
   { fromSpecies: 'Cubone', toSpecies: 'Marowak', minLevel: 28 },
   { fromSpecies: 'Koffing', toSpecies: 'Weezing', minLevel: 35 },
   { fromSpecies: 'Rhyhorn', toSpecies: 'Rhydon', minLevel: 42 },
   { fromSpecies: 'Horsea', toSpecies: 'Seadra', minLevel: 32 },
   { fromSpecies: 'Goldeen', toSpecies: 'Seaking', minLevel: 33 },
-  { fromSpecies: 'Staryu', toSpecies: 'Starmie', minLevel: 30 },
   { fromSpecies: 'Magikarp', toSpecies: 'Gyarados', minLevel: 20 },
   { fromSpecies: 'Omanyte', toSpecies: 'Omastar', minLevel: 40 },
   { fromSpecies: 'Kabuto', toSpecies: 'Kabutops', minLevel: 40 },
@@ -462,31 +448,14 @@ export function normalizePokemonReward(
   const originalLvl = reward.level || avgLvl;
   const targetLvl = Math.min(maxAllowed, Math.max(minAllowed, originalLvl));
 
-  // 2. Check if species needs to be de-evolved because targetLvl is below evolution minLevel
-  let currentSpecies = reward.species || reward.name;
-  let currentStage = reward.stage || 1;
-
-  while (true) {
-    const evoRule = EVOLUTION_RULES.find(
-      r => r.toSpecies.toLowerCase() === currentSpecies.toLowerCase()
-    );
-    if (evoRule && targetLvl < evoRule.minLevel) {
-      currentSpecies = evoRule.fromSpecies;
-      currentStage = Math.max(1, currentStage - 1);
-    } else {
-      break;
-    }
-  }
+  // 2. Keep the requested species and name intact
+  const currentSpecies = reward.species || reward.name;
+  const currentStage = reward.stage || 1;
 
   const kantoMatch = findPokemonByName(currentSpecies);
   const finalType = kantoMatch ? kantoMatch.types.join(' / ') : (reward.type || 'Normal');
   const finalSprite = kantoMatch ? kantoMatch.sprite : reward.spriteUrl;
-
-  let finalName = reward.name;
-  // If species was de-evolved, update the displayed name to the base species name
-  if (currentSpecies.toLowerCase() !== (reward.species || reward.name).toLowerCase()) {
-    finalName = currentSpecies;
-  }
+  const finalName = reward.name || currentSpecies;
 
   const finalIVs = reward.ivs || generateRandomIVs();
 

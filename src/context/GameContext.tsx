@@ -311,6 +311,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       let wasSentToPC = false;
       let evolvedName: string | undefined = undefined;
       let catchNoticeObj: any = undefined;
+      let actualOutcomeText = option.outcomeText;
 
       // Type matchup evaluation based on Team Leader (Slot #1)
       const leaderMon = newTeam[0];
@@ -333,7 +334,34 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           newInventory[captureResult.consumedBallId] = Math.max(0, ballQty - 1);
         }
 
-        if (captureResult.captured) {
+        // Determine capture success:
+        let captured = false;
+        if (option.forceDefeat) {
+          // Failed capture minigame -> Pokemon escapes!
+          captured = false;
+          catchNoticeObj = {
+            hasBall: true,
+            captured: false,
+            usedBallName: captureResult.chosenBall?.name,
+            usedBallIcon: captureResult.chosenBall?.iconEmoji || '🔴',
+            message: `💨 ¡El ${option.addPokemon.species || option.addPokemon.name} rompió la Poké Ball y huyó hacia la maleza! No pudiste capturarlo.`
+          };
+          actualOutcomeText = `💨 ¡CAPTURA FALLIDA! El ${option.addPokemon.species || option.addPokemon.name} rompió la Poké Ball y huyó rápidamente hacia la maleza.`;
+        } else if (option.forceVictory) {
+          // Won capture minigame -> Captured!
+          captured = true;
+          if (catchNoticeObj) {
+            catchNoticeObj.captured = true;
+          }
+        } else {
+          // Standard capture attempt based on Pokeball formula
+          captured = captureResult.captured;
+          if (!captured) {
+            actualOutcomeText = `💨 ¡CAPTURA FALLIDA! El ${option.addPokemon.species || option.addPokemon.name} rompió la Poké Ball y huyó hacia la maleza.`;
+          }
+        }
+
+        if (captured) {
           const teamAvgLvl = newTeam.length > 0
             ? Math.round(newTeam.reduce((acc, m) => acc + (m.level || 5), 0) / newTeam.length)
             : 8;
@@ -424,12 +452,30 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       // Dynamic Combat & Option Resolution
       let isActualVictory = !!option.isVictory;
       let isActualDefeat = !!option.isDefeat;
-      let actualOutcomeText = option.outcomeText;
       let actualAwardedBadge = awardedBadge;
+
+      if (option.forceVictory) {
+        isActualVictory = true;
+        isActualDefeat = false;
+      } else if (option.forceDefeat) {
+        isActualVictory = false;
+        isActualDefeat = true;
+        actualAwardedBadge = undefined;
+        if (option.awardBadgeId) {
+          newBadges = newBadges.filter(b => b !== option.awardBadgeId);
+        }
+        if (!actualOutcomeText || actualOutcomeText === option.outcomeText) {
+          if (option.addPokemon) {
+            actualOutcomeText = `💨 ¡CAPTURA FALLIDA! El ${option.addPokemon.species || option.addPokemon.name} rompió la Poké Ball y huyó rápidamente del lugar.`;
+          } else {
+            actualOutcomeText = option.outcomeText || `¡DERROTA EN COMBATE! Tu equipo Pokémon fue derrotado en ${currentEvent.location} tras agotar todas las oportunidades.`;
+          }
+        }
+      }
 
       const isCombatCat = currentEvent.category === 'GYM_BATTLE' || currentEvent.category === 'RIVAL_MATCH' || currentEvent.category === 'VILLAIN_TEAM' || currentEvent.category === 'LEAGUE_TOURNAMENT';
 
-      if (isCombatCat && option.isVictory) {
+      if (isCombatCat && option.isVictory && !option.forceVictory) {
         const teamAvgLvl = newTeam.length > 0
           ? Math.round(newTeam.reduce((acc, m) => acc + (m.level || 5), 0) / newTeam.length)
           : 8;

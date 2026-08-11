@@ -1,4 +1,5 @@
 import { PokemonMember, GameEvent } from '../types';
+import { KANTO_POKEDEX, findPokemonByName } from '../data/kantoPokedex';
 
 export type PokemonType = 
   | 'Acero'
@@ -231,14 +232,35 @@ export function getOffensiveEffectiveness(typeStr: string): {
 }
 
 /**
- * Infers opponent element/type from event metadata
+ * Infers opponent element/type from event metadata or options
  */
 export function inferEventOpponentType(event: GameEvent): string {
   const title = event.title.toLowerCase();
   const desc = event.description.toLowerCase();
   const badgeId = event.badgeId?.toLowerCase() || '';
 
-  // Gym Leaders
+  // 1. Check if options offer a specific addPokemon or mention a species
+  if (event.options) {
+    for (const opt of event.options) {
+      if (opt.addPokemon) {
+        const pName = opt.addPokemon.species || opt.addPokemon.name;
+        const pData = findPokemonByName(pName);
+        if (pData && pData.types && pData.types.length > 0) {
+          return pData.types[0];
+        }
+      }
+    }
+  }
+
+  // 2. Check if title or description mentions a specific Kanto Pokemon
+  for (const p of KANTO_POKEDEX) {
+    const nameLower = p.name.toLowerCase();
+    if (nameLower.length > 3 && (title.includes(nameLower) || desc.includes(nameLower))) {
+      return p.types[0];
+    }
+  }
+
+  // 3. Gym Leaders & Key Leaders
   if (badgeId.includes('roca') || badgeId.includes('boulder') || title.includes('brock') || desc.includes('brock')) return 'Roca';
   if (badgeId.includes('cascada') || badgeId.includes('cascade') || title.includes('misty') || desc.includes('misty')) return 'Agua';
   if (badgeId.includes('trueno') || badgeId.includes('thunder') || title.includes('surge') || desc.includes('surge')) return 'Eléctrico';
@@ -248,30 +270,23 @@ export function inferEventOpponentType(event: GameEvent): string {
   if (badgeId.includes('volcan') || badgeId.includes('volcano') || title.includes('blaine') || desc.includes('blaine')) return 'Fuego';
   if (badgeId.includes('tierra') || badgeId.includes('earth') || title.includes('giovanni') || desc.includes('giovanni')) return 'Tierra';
 
-  // Elite Four
+  // 4. Elite Four & Legendaries
   if (title.includes('lorelei') || desc.includes('lorelei')) return 'Hielo';
   if (title.includes('bruno') || desc.includes('bruno')) return 'Lucha';
   if (title.includes('agatha') || desc.includes('agatha')) return 'Fantasma';
   if (title.includes('lance') || desc.includes('lance')) return 'Dragón';
 
-  // Specific Legendaries / Pokemon keywords
   if (title.includes('zapdos') || desc.includes('zapdos') || desc.includes('central eléctrica')) return 'Eléctrico';
   if (title.includes('articuno') || desc.includes('articuno') || desc.includes('islas espuma')) return 'Hielo';
   if (title.includes('moltres') || desc.includes('moltres') || desc.includes('venera fuego')) return 'Fuego';
   if (title.includes('mewtwo') || desc.includes('mewtwo') || title.includes('mew')) return 'Psíquico';
-  if (title.includes('snorlax') || desc.includes('snorlax')) return 'Normal';
-  if (title.includes('gyarados') || desc.includes('lago')) return 'Agua';
-  if (title.includes('charizard') || desc.includes('llamas')) return 'Fuego';
-  if (title.includes('onix') || desc.includes('rocas')) return 'Roca';
-  if (title.includes('gengar') || desc.includes('torre pokémon') || desc.includes('fantasmas')) return 'Fantasma';
   if (title.includes('team rocket') || desc.includes('guarida rocket') || desc.includes('rocket')) return 'Veneno';
 
   if (event.category === 'GYM_BATTLE') return 'Roca';
   if (event.category === 'VILLAIN_TEAM') return 'Veneno';
   if (event.category === 'LEAGUE_TOURNAMENT') return 'Dragón';
-  if (event.category === 'WILD_ENCOUNTER') return 'Planta';
 
-  return 'Normal';
+  return 'Neutral';
 }
 
 export interface MatchupEvaluation {
@@ -293,7 +308,7 @@ export interface MatchupEvaluation {
 export function evaluateLeaderMatchup(leaderMon: PokemonMember | undefined, event: GameEvent): MatchupEvaluation {
   if (!leaderMon) {
     return {
-      opponentType: 'Normal',
+      opponentType: 'Neutral',
       offensiveMultiplier: 1.0,
       defensiveMultiplier: 1.0,
       netScore: 1.0,
@@ -309,6 +324,21 @@ export function evaluateLeaderMatchup(leaderMon: PokemonMember | undefined, even
   const opponentType = inferEventOpponentType(event);
   const leaderType = leaderMon.type;
 
+  if (opponentType === 'Neutral') {
+    return {
+      opponentType: 'Neutral',
+      offensiveMultiplier: 1.0,
+      defensiveMultiplier: 1.0,
+      netScore: 1.0,
+      label: 'NEUTRAL',
+      badgeBg: 'bg-slate-100 border-slate-400',
+      badgeText: 'text-slate-800',
+      effectDescription: `Tu Líder ${leaderMon.name} (${leaderType}) está listo para afrontar la situación sin ventajas ni desventajas de tipo críticas.`,
+      skillBonus: 0,
+      expBonusPercent: 0
+    };
+  }
+
   const offensiveMult = getTypeEffectivenessMultiplier(leaderType, opponentType);
   const defensiveMult = getTypeEffectivenessMultiplier(opponentType, leaderType);
 
@@ -321,7 +351,7 @@ export function evaluateLeaderMatchup(leaderMon: PokemonMember | undefined, even
   let label = 'NEUTRAL';
   let badgeBg = 'bg-gray-100 border-gray-600';
   let badgeText = 'text-gray-800';
-  let effectDescription = `Tu Líder ${leaderMon.name} (${leaderType}) tiene un enfrentamiento equilibrado contra el rival (${opponentType}).`;
+  let effectDescription = `Tu Líder ${leaderMon.name} (${leaderType}) tiene un enfrentamiento neutro contra los rivales de este evento (${opponentType}).`;
   let skillBonus = 0;
   let expBonusPercent = 0;
 
